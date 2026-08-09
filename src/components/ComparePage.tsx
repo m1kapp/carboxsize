@@ -1,0 +1,121 @@
+import { useEffect, useState } from "react";
+import { Select } from "@m1kapp/kit";
+import { Shuffle } from "lucide-react";
+import { boxVolume, CARS, spaceVolume, type Car } from "../data/cars";
+import { BoxBuilder } from "./BoxBuilder";
+
+/** 앞 두 항목(성인사람·주차장)은 기준자라서 랜덤 대상에서 뺀다 */
+const RANDOM_POOL = CARS.slice(2);
+
+const OPTIONS = CARS.map((car) => ({ value: car.name, label: car.name }));
+
+const byName = (name: string | null) => CARS.find((c) => c.name === name) ?? null;
+
+type Metric = {
+  label: string;
+  /** 두 값의 차이를 읽는 말 — "더 크다" / "더 길다" */
+  verb: string;
+  get: (car: Car) => number;
+  format: (diff: number) => string;
+  className?: string;
+};
+
+const mm = (diff: number) => `${diff}mm`;
+const m3 = (diff: number) => `${diff.toFixed(2)}m³`;
+
+const METRICS: Metric[] = [
+  { label: "공간", verb: "더 크다", get: spaceVolume, format: m3, className: "text-blue-600" },
+  { label: "외형", verb: "더 크다", get: boxVolume, format: m3, className: "text-purple-600" },
+  { label: "축거", verb: "더 길다", get: (c) => c.xInSize, format: mm },
+  { label: "전장", verb: "더 길다", get: (c) => c.xSize, format: mm },
+  { label: "전폭", verb: "더 넓다", get: (c) => c.ySize, format: mm },
+  { label: "전고", verb: "더 높다", get: (c) => c.zSize, format: mm },
+];
+
+function pickRandomPair(): [string, string] {
+  const first = Math.floor(Math.random() * RANDOM_POOL.length);
+  let second = Math.floor(Math.random() * (RANDOM_POOL.length - 1));
+  if (second >= first) second += 1; // 같은 차가 두 번 뽑히지 않게 한 칸 민다
+  return [RANDOM_POOL[first].name, RANDOM_POOL[second].name];
+}
+
+export function ComparePage() {
+  const [names, setNames] = useState<[string | null, string | null]>([null, null]);
+  const [left, right] = [byName(names[0]), byName(names[1])];
+
+  // 처음 들어오면 빈 화면 대신 랜덤 두 대를 보여준다
+  useEffect(() => setNames(pickRandomPair()), []);
+
+  const setAt = (index: 0 | 1, name: string) =>
+    setNames((prev) => (index === 0 ? [name, prev[1]] : [prev[0], name]));
+
+  return (
+    <div className="flex flex-col gap-4">
+      <div className="grid grid-cols-2 gap-4">
+        {([0, 1] as const).map((index) => {
+          const car = index === 0 ? left : right;
+          return (
+            <div key={index} className="flex flex-col">
+              <Select
+                value={names[index] ?? ""}
+                onChange={(name) => name && setAt(index, name)}
+                placeholder="차량을 선택해주세요"
+                options={OPTIONS}
+              />
+              <div className="mt-2">
+                {car ? (
+                  <BoxBuilder car={car} showTitle={false} />
+                ) : (
+                  <div className="flex aspect-square items-center justify-center rounded-xl bg-white shadow-lg">
+                    <p className="text-sm text-gray-500">차량을 선택해주세요</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {left && right && (
+        <div className="rounded-xl bg-white p-4 shadow-lg">
+          <div className="mb-4 text-center font-medium text-gray-700">차량 크기 비교</div>
+          <div className="flex flex-col gap-2 text-sm">
+            {METRICS.map((metric) => (
+              <MetricRow key={metric.label} metric={metric} left={left} right={right} />
+            ))}
+          </div>
+        </div>
+      )}
+
+      <div className="flex justify-center">
+        <button
+          onClick={() => setNames(pickRandomPair())}
+          className="flex items-center gap-1 rounded-full bg-white px-6 py-3 text-gray-700 shadow-lg transition-all hover:bg-gray-50 hover:shadow-md"
+        >
+          <span>랜덤</span>
+          <Shuffle className="h-5 w-5" />
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function MetricRow({ metric, left, right }: { metric: Metric; left: Car; right: Car }) {
+  const diff = metric.get(left) - metric.get(right);
+  const winner = diff > 0 ? left : right;
+
+  return (
+    <div className="flex gap-2">
+      <div className={`w-10 shrink-0 ${metric.className ?? ""}`}>{metric.label}</div>
+      <div className="flex-1">
+        {diff === 0 ? (
+          <span className="text-gray-500">두 차량의 {metric.label}이(가) 같습니다</span>
+        ) : (
+          <span>
+            <b>{winner.name}</b> 차가 {metric.format(Math.abs(diff))} {metric.verb}
+          </span>
+        )}
+      </div>
+    </div>
+  );
+}
