@@ -1,0 +1,404 @@
+{
+  "generatedAt": "2026-08-10T11:29:39.249Z",
+  "kitVersion": "0.0.39",
+  "source": {
+    "dir": "src",
+    "files": 11,
+    "totalLines": 1400,
+    "codeLines": 1243,
+    "breakdown": {
+      "frontend": {
+        "files": 6,
+        "codeLines": 524
+      },
+      "backend": {
+        "files": 0,
+        "codeLines": 0
+      },
+      "shared": {
+        "files": 5,
+        "codeLines": 719
+      }
+    }
+  },
+  "quality": {
+    "engine": "ast2",
+    "score": 95,
+    "grade": "SS",
+    "gradeBase": "S",
+    "dead": null,
+    "cognitive": {
+      "avg": 0.7,
+      "p90": 2,
+      "max": 6,
+      "over15": 0,
+      "over25": 0,
+      "top10avg": 3.8,
+      "worst": [
+        {
+          "name": "(anonymous)",
+          "cog": 6,
+          "cc": 4,
+          "file": "src/data/sort.ts",
+          "line": 50
+        },
+        {
+          "name": "BoxBuilder",
+          "cog": 5,
+          "cc": 6,
+          "file": "src/components/BoxBuilder.tsx",
+          "line": 25
+        },
+        {
+          "name": "chipsFor",
+          "cog": 5,
+          "cc": 6,
+          "file": "src/data/rank.ts",
+          "line": 35
+        },
+        {
+          "name": "CarPicker",
+          "cog": 4,
+          "cc": 6,
+          "file": "src/components/CarPicker.tsx",
+          "line": 20
+        },
+        {
+          "name": "toChoseong",
+          "cog": 4,
+          "cc": 4,
+          "file": "src/data/search.ts",
+          "line": 6
+        },
+        {
+          "name": "CarListPage",
+          "cog": 3,
+          "cc": 4,
+          "file": "src/components/CarListPage.tsx",
+          "line": 12
+        },
+        {
+          "name": "(anonymous)",
+          "cog": 3,
+          "cc": 4,
+          "file": "src/components/CarListPage.tsx",
+          "line": 50
+        },
+        {
+          "name": "(anonymous)",
+          "cog": 3,
+          "cc": 5,
+          "file": "src/components/CarPicker.tsx",
+          "line": 91
+        },
+        {
+          "name": "measurable",
+          "cog": 3,
+          "cc": 8,
+          "file": "src/data/sort.ts",
+          "line": 31
+        },
+        {
+          "name": "pick",
+          "cog": 2,
+          "cc": 2,
+          "file": "src/components/CarListPage.tsx",
+          "line": 24
+        }
+      ]
+    },
+    "fnLength": {
+      "avg": 6,
+      "p90": 16,
+      "max": 74,
+      "over40": 1,
+      "over80": 0,
+      "top10avg": 32.9,
+      "countAll": 92,
+      "count5": 24,
+      "count10": 16,
+      "worst": [
+        {
+          "name": "BoxBuilder",
+          "lines": 74,
+          "cog": 5,
+          "file": "src/components/BoxBuilder.tsx",
+          "line": 25
+        },
+        {
+          "name": "CarPicker",
+          "lines": 55,
+          "cog": 4,
+          "file": "src/components/CarPicker.tsx",
+          "line": 20
+        },
+        {
+          "name": "App",
+          "lines": 44,
+          "cog": 1,
+          "file": "src/App.tsx",
+          "line": 15
+        },
+        {
+          "name": "CarListPage",
+          "lines": 32,
+          "cog": 3,
+          "file": "src/components/CarListPage.tsx",
+          "line": 12
+        },
+        {
+          "name": "ComparePage",
+          "lines": 25,
+          "cog": 1,
+          "file": "src/components/ComparePage.tsx",
+          "line": 46
+        },
+        {
+          "name": "(anonymous)",
+          "lines": 24,
+          "cog": 3,
+          "file": "src/components/CarPicker.tsx",
+          "line": 91
+        },
+        {
+          "name": "Spec",
+          "lines": 21,
+          "cog": 1,
+          "file": "src/components/BoxBuilder.tsx",
+          "line": 119
+        },
+        {
+          "name": "MonthPicker",
+          "lines": 20,
+          "cog": 1,
+          "file": "src/components/CarListPage.tsx",
+          "line": 94
+        },
+        {
+          "name": "MetricRow",
+          "lines": 18,
+          "cog": 2,
+          "file": "src/components/ComparePage.tsx",
+          "line": 105
+        },
+        {
+          "name": "(anonymous)",
+          "lines": 16,
+          "cog": 3,
+          "file": "src/components/CarListPage.tsx",
+          "line": 50
+        }
+      ]
+    },
+    "scoreInputs": {
+      "over15Pct": 0,
+      "over25Pct": 0,
+      "p90Cog": 2,
+      "maxCog": 6,
+      "dupPct": 0,
+      "longFileSeverityPct": 7.03,
+      "avgFileLines": 113,
+      "fnOver40Pct": 1.09,
+      "fnP90": 16,
+      "fnMax": 74,
+      "fnTop10": 32.9,
+      "cogTop10": 3.8
+    },
+    "duplication": {
+      "percent": 0,
+      "dupTokens": 0,
+      "totalTokens": 7784,
+      "blocks": 0,
+      "worstFiles": [],
+      "worstBlocks": [],
+      "variantSkipped": 0
+    },
+    "io": {
+      "readers": 0,
+      "uncachedReaders": 0,
+      "loopSites": 0,
+      "uncachedLoopSites": 0,
+      "worst": []
+    },
+    "textbook": {
+      "awaitInForEach": {
+        "count": 0,
+        "worst": []
+      },
+      "spreadAccumulator": {
+        "count": 0,
+        "worst": []
+      },
+      "regexInLoop": {
+        "count": 0,
+        "worst": []
+      },
+      "floatingPromise": {
+        "count": 0,
+        "worst": []
+      },
+      "loopInvariantIndex": {
+        "count": 0,
+        "worst": []
+      },
+      "sharedRefFill": {
+        "count": 0,
+        "worst": []
+      },
+      "numericSortNoComparator": {
+        "count": 0,
+        "worst": []
+      },
+      "emptyCatch": {
+        "count": 0,
+        "worst": []
+      },
+      "statefulRegex": {
+        "count": 0,
+        "worst": []
+      },
+      "forInArray": {
+        "count": 0,
+        "worst": []
+      }
+    },
+    "typeSafety": {
+      "tsFiles": 11,
+      "totalAnnots": 204,
+      "anyType": {
+        "count": 0,
+        "pct": 0,
+        "worst": []
+      },
+      "asAny": {
+        "count": 0,
+        "worst": []
+      },
+      "nonNull": {
+        "count": 1,
+        "worst": [
+          {
+            "file": "src/main.tsx",
+            "line": 6,
+            "text": "document.getElementById(\"root\")!"
+          }
+        ]
+      },
+      "tsIgnore": {
+        "count": 0,
+        "worst": []
+      }
+    },
+    "testDensity": {
+      "files": 0,
+      "lines": 0,
+      "percent": null
+    },
+    "quadratic": {
+      "sites": 0,
+      "candidates": 0,
+      "zones": {},
+      "worst": [],
+      "candidateList": [],
+      "files": []
+    },
+    "renderGates": {
+      "hostages": 0,
+      "worst": []
+    },
+    "cc": {
+      "functions": 92,
+      "avg": 1.8,
+      "p90": 4,
+      "max": 8,
+      "over10": 0,
+      "over20": 0,
+      "worst": [
+        {
+          "name": "measurable",
+          "cc": 8,
+          "file": "src/data/sort.ts",
+          "line": 31
+        },
+        {
+          "name": "BoxBuilder",
+          "cc": 6,
+          "file": "src/components/BoxBuilder.tsx",
+          "line": 25
+        },
+        {
+          "name": "CarPicker",
+          "cc": 6,
+          "file": "src/components/CarPicker.tsx",
+          "line": 20
+        },
+        {
+          "name": "chipsFor",
+          "cc": 6,
+          "file": "src/data/rank.ts",
+          "line": 35
+        },
+        {
+          "name": "(anonymous)",
+          "cc": 5,
+          "file": "src/components/CarPicker.tsx",
+          "line": 91
+        }
+      ]
+    },
+    "branchDensity": 6,
+    "branches": 74,
+    "functions": 98,
+    "avgFileLines": 113,
+    "longFiles": 1,
+    "maxFile": {
+      "path": "src/data/sales.ts",
+      "lines": 492
+    }
+  },
+  "kit": {
+    "features": [
+      {
+        "name": "Watermark",
+        "loc": 194,
+        "category": "component"
+      },
+      {
+        "name": "Dialog",
+        "loc": 98,
+        "category": "component"
+      },
+      {
+        "name": "AppShell",
+        "loc": 76,
+        "category": "component"
+      },
+      {
+        "name": "TabBar",
+        "loc": 44,
+        "category": "component"
+      }
+    ],
+    "savedLines": 412,
+    "savedKB": 16,
+    "savedA4": 5,
+    "savedPercent": 25,
+    "usage": {
+      "component": {
+        "used": 8,
+        "total": 60,
+        "percent": 13
+      },
+      "hook": {
+        "used": 0,
+        "total": 13,
+        "percent": 0
+      },
+      "util": {
+        "used": 0,
+        "total": 26,
+        "percent": 0
+      }
+    }
+  }
+}
