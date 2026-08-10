@@ -25,6 +25,7 @@ body {
 .box-face {
   position: absolute;
   transform-style: preserve-3d;
-  border: 0.5px solid #000;
+  /* 상자는 눈금이지 주인공이 아니다 — 차 사진을 덮지 않을 만큼만 진하게 */
+  border: 0.5px solid rgba(0, 0, 0, 0.45);
   transition: transform 0.3s ease;
 }

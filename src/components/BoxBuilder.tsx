@@ -25,7 +25,7 @@ type Props = {
 export function BoxBuilder({
   car,
   rotation = DEFAULT_ROTATION,
-  boxColor = "rgba(0,0,0,0.1)",
+  boxColor = "rgba(0,0,0,0.055)",
   showTitle = true,
   month = LATEST_MONTH,
 }: Props) {

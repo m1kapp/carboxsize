@@ -53,7 +53,7 @@ export function CarListPage({ onCompare }: { onCompare: (car: Car) => void }) {
             <button
               key={key}
               onClick={() => pick(key)}
-              className={`w-full min-w-0 rounded-lg px-1 py-2 text-xs font-medium transition-all ${
+              className={`w-full min-w-0 rounded-lg px-1 py-1.5 text-xs font-medium transition-all ${
                 active
                   ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-md"
                   : "bg-white text-gray-700 shadow-sm hover:bg-gray-50"
