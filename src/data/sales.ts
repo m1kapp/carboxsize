@@ -1,3 +1,5 @@
+// 이 파일은 scripts/sync-sales.mjs 가 만듭니다. 손으로 고치지 마세요.
+// 갱신: npm run sync:sales
 /**
  * 다나와 자동차 판매실적(모델별)에서 가져온 국내 신차 등록 대수.
  * 키가 `Car.no`(다나와 모델 번호)라서 이름 매칭 없이 정확히 붙는다.
@@ -6,6 +8,7 @@
  */
 export const SALES: Record<string, Record<number, number>> = {
   "2026-07": {
+    4667: 8705,     // Model Y
     4802: 8532,     // 더 뉴 그랜저
     4763: 7427,     // 셀토스
     4586: 6917,     // 카니발
@@ -28,6 +31,7 @@ export const SALES: Record<string, Record<number, number>> = {
     4624: 1829,     // 아이오닉 5
     4603: 1779,     // G80
     4609: 1538,     // GV70
+    4610: 1531,     // Model 3
     4592: 1376,     // 투싼
     4691: 1334,     // 레이 EV
     4465: 1317,     // GV80
@@ -49,29 +53,39 @@ export const SALES: Record<string, Record<number, number>> = {
     4429: 584,      // 트랙스 크로스오버
     4653: 491,      // 캐스퍼 일렉트릭
     4545: 480,      // 티볼리
+    4747: 448,      // XC60
     4128: 442,      // EV9
     4686: 442,      // 타스만
     4560: 439,      // 아르카나
     4807: 393,      // 뉴 토레스
     4622: 383,      // 액티언
+    4618: 342,      // Cooper
     4773: 309,      // The new A6
     4016: 279,      // G90
+    4513: 248,      // Polestar 4
     4751: 247,      // The New iX3
+    4506: 227,      // Cayenne
     4510: 220,      // 코나 일렉트릭
     4474: 173,      // 트레일블레이저
     4705: 162,      // Electrified GV70
+    4720: 160,      // Golf
     4736: 156,      // The new Q5
     4660: 154,      // Electrified G80
+    4005: 146,      // ID.4
+    4737: 143,      // XC90
     4703: 132,      // SEAL
+    4121: 118,      // ID.5
     4701: 115,      // GV60
     4492: 98,       // 토레스 EVX
     4564: 79,       // 아반떼 N
     3995: 71,       // G70
     4690: 62,       // Q6 e-tron
-    3526: 59,       //
+    3526: 59,       // Urus
     4066: 57,       // K9
     4774: 34,       // The new Q3
     4518: 29,       // 렉스턴 뉴 아레나
+    4741: 15,       // 3008
+    4750: 11,       // EX30 CC
     4759: 1,        // The new e-tron GT
   },
   "2026-06": {
@@ -146,13 +160,13 @@ export const SALES: Record<string, Record<number, number>> = {
     4705: 134,      // Electrified GV70
     4701: 125,      // GV60
     4564: 115,      // 아반떼 N
-    4737: 111,      // XC90
     4518: 111,      // 렉스턴 뉴 아레나
+    4737: 111,      // XC90
     4774: 97,       // The new Q3
     3825: 96,       // Cybertruck
     4492: 91,       // 토레스 EVX
     4751: 58,       // The New iX3
-    3526: 48,       //
+    3526: 48,       // Urus
     4690: 36,       // Q6 e-tron
     4121: 33,       // ID.5
     4741: 27,       // 3008
@@ -231,7 +245,7 @@ export const SALES: Record<string, Record<number, number>> = {
     4492: 99,       // 토레스 EVX
     4702: 99,       // ATTO 3
     4564: 95,       // 아반떼 N
-    3526: 60,       //
+    3526: 60,       // Urus
     3995: 52,       // G70
     4750: 24,       // EX30 CC
     4741: 21,       // 3008
@@ -310,9 +324,9 @@ export const SALES: Record<string, Record<number, number>> = {
     4492: 85,       // 토레스 EVX
     4773: 66,       // The new A6
     3995: 62,       // G70
-    3526: 19,       //
+    3526: 19,       // Urus
     4741: 10,       // 3008
-    3746: 8,        //
+    3746: 8,        // Huracan EVO
     3825: 5,        // Cybertruck
     4690: 1,        // Q6 e-tron
     4759: 1,        // The new e-tron GT
@@ -375,8 +389,8 @@ export const SALES: Record<string, Record<number, number>> = {
     4005: 234,      // ID.4
     3995: 191,      // G70
     4737: 178,      // XC90
-    4703: 174,      // SEAL
     4492: 174,      // 토레스 EVX
+    4703: 174,      // SEAL
     4474: 165,      // 트레일블레이저
     4506: 163,      // Cayenne
     4705: 145,      // Electrified GV70
@@ -387,16 +401,16 @@ export const SALES: Record<string, Record<number, number>> = {
     4564: 93,       // 아반떼 N
     4701: 88,       // GV60
     4518: 81,       // 렉스턴 뉴 아레나
-    4391: 62,       //
+    4391: 62,       // 셀토스
     4702: 31,       // ATTO 3
     4741: 20,       // 3008
-    4396: 3,        //
+    4396: 3,        // 니로 EV
+    3635: 2,        // 코란도
     4690: 2,        // Q6 e-tron
-    3635: 2,        //
-    4773: 1,        // The new A6
-    4759: 1,        // The new e-tron GT
-    4751: 1,        // The New iX3
     3825: 1,        // Cybertruck
+    4751: 1,        // The New iX3
+    4759: 1,        // The new e-tron GT
+    4773: 1,        // The new A6
   },
   "2026-02": {
     4563: 7693,     // 쏘렌토
@@ -443,7 +457,7 @@ export const SALES: Record<string, Record<number, number>> = {
     4545: 500,      // 티볼리
     4653: 472,      // 캐스퍼 일렉트릭
     4677: 467,      // 디 올 뉴 넥쏘
-    4391: 421,      //
+    4391: 421,      // 셀토스
     4747: 398,      // XC60
     4005: 353,      // ID.4
     4560: 336,      // 아르카나
@@ -471,9 +485,9 @@ export const SALES: Record<string, Record<number, number>> = {
     4741: 25,       // 3008
     4027: 16,       // Model X
     4690: 9,        // Q6 e-tron
-    4396: 7,        //
+    4396: 7,        // 니로 EV
     3825: 5,        // Cybertruck
-    4468: 2,        //
+    4468: 2,        // Polestar 2
     4759: 1,        // The new e-tron GT
   },
 };
@@ -489,12 +503,16 @@ export const salesOf = (no?: number, month: string = LATEST_MONTH) =>
 export const formatMonth = (ym: string) =>
   `${Number(ym.slice(0, 4))}년 ${Number(ym.slice(5, 7))}월`;
 
+/** 그 달 판매량의 출처가 된 다나와 판매실적 페이지 */
+export const danawaRecordUrl = (month: string) =>
+  `https://auto.danawa.com/auto/?Work=record&Tab=Model&Month=${month}-00&MonthTo=`;
+
 /**
  * 그 달에 판매량이 잡힌 수입차 모델 수.
  * 다나와는 수입차를 브랜드마다 다른 시점에 집계해서, 가장 최근 달은 아직 덜 찬다.
  */
 const IMPORTED_COUNT: Record<string, number> = {
-  "2026-07": 10,
+  "2026-07": 22,
   "2026-06": 25,
   "2026-05": 22,
   "2026-04": 23,
@@ -507,7 +525,3 @@ const FULL_IMPORTED = Math.max(...Object.values(IMPORTED_COUNT));
 /** 수입차 집계가 아직 덜 찬 달인지 — 맞으면 화면에 그렇다고 적어준다. */
 export const importedPending = (month: string) =>
   (IMPORTED_COUNT[month] ?? 0) < FULL_IMPORTED * 0.7;
-
-/** 그 달 판매량의 출처가 된 다나와 판매실적 페이지 */
-export const danawaRecordUrl = (month: string) =>
-  `https://auto.danawa.com/auto/?Work=record&Tab=Model&Month=${month}-00&MonthTo=`;

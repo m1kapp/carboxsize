@@ -6,7 +6,10 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "sync:sales": "node scripts/sync-sales.mjs",
+    "verify:cars": "node scripts/verify-cars.mjs",
+    "check:claim": "node scripts/check-claim.mjs"
   },
   "dependencies": {
     "@m1kapp/kit": "^0.0.40",

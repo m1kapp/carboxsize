@@ -25,6 +25,24 @@ npm run dev      # http://localhost:5173
 npm run build
 ```
 
+## 데이터 갱신 — 손으로 옮기지 않습니다
+
+값의 출처는 전부 다나와이고, 갱신 경로는 스크립트 하나뿐입니다. 화면에 보이는 숫자를
+직접 타이핑하는 순간 다음 달에 반드시 틀어집니다.
+
+```bash
+npm run sync:sales     # 판매량 최근 6개월 재수집 -> src/data/sales.ts
+npm run sync:sales -- --months=12
+npm run verify:cars    # cars.ts 치수를 다나와 제원과 전수 대조 (차이 있으면 exit 1)
+npm run check:claim    # m1k.app 등록·귀속 상태가 config와 맞는지 (어긋나면 exit 1)
+```
+
+- `src/data/sales.ts`는 **생성물입니다.** 손으로 고치지 마세요.
+- `verify:cars`는 값을 고치지 않고 차이만 보고합니다. 다나와와 다른 게 늘 틀린 건
+  아니라서(아래 "제원 기준") 판단은 사람이 하고, 확정한 예외는 스크립트의 `ACCEPTED`에
+  이유와 함께 적습니다. 그래야 다음 사람이 같은 조사를 반복하지 않습니다.
+- 색·slug 같은 사이트 설정은 `src/config.ts` 한 곳에 있습니다.
+
 ## 스택
 
 Vite · React 19 · TypeScript · Tailwind 4 · [`@m1kapp/kit`](https://github.com/m1kapp/kit)
