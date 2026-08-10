@@ -1,6 +1,6 @@
 import type { CSSProperties } from "react";
 import { Img } from "@m1kapp/kit";
-import { boxVolume, carImageUrl, spaceVolume, type Car } from "../data/cars";
+import { boxVolume, carImageUrl, danawaModelUrl, spaceVolume, type Car } from "../data/cars";
 import { LATEST_MONTH, salesOf } from "../data/sales";
 import { CHIP_TONE, chipsFor } from "../data/rank";
 
@@ -31,6 +31,7 @@ export function BoxBuilder({
 }: Props) {
   const { xSize, ySize, zSize, xInSize } = car;
   const imageUrl = carImageUrl(car.no);
+  const sourceUrl = danawaModelUrl(car.no);
   const units = salesOf(car.no, month);
   const chips = chipsFor(car, month);
 
@@ -45,17 +46,29 @@ export function BoxBuilder({
   ];
 
   return (
-    <div className="relative flex min-w-0 flex-col">
+    <div className="relative flex min-w-0 flex-col overflow-hidden rounded-xl bg-white shadow-md ring-1 ring-black/5">
       {showTitle && (
-        <div className="flex items-baseline justify-between gap-1 rounded-t-xl bg-white p-2 pb-1 shadow-lg">
-          <h3 className="truncate text-sm font-semibold text-gray-800">{car.name}</h3>
+        <div className="flex items-baseline justify-between gap-1 px-2 pt-2 pb-1">
+          {sourceUrl ? (
+            <a
+              href={sourceUrl}
+              target="_blank"
+              rel="noreferrer noopener"
+              title="다나와 제원 보기"
+              className="truncate text-sm font-semibold text-gray-800 underline decoration-gray-300 decoration-dotted underline-offset-2"
+            >
+              {car.name}
+            </a>
+          ) : (
+            <h3 className="truncate text-sm font-semibold text-gray-800">{car.name}</h3>
+          )}
           {units != null && (
             <span className="shrink-0 text-[10px] text-gray-400">{units.toLocaleString()}대</span>
           )}
         </div>
       )}
 
-      <div className="relative z-1 flex aspect-square w-full items-center justify-center overflow-hidden bg-gradient-to-br from-gray-200 to-gray-500 shadow-lg">
+      <div className="relative z-1 flex aspect-4/3 w-full items-center justify-center overflow-hidden bg-gradient-to-br from-gray-200 to-gray-500">
         {imageUrl && (
           <div className="absolute inset-0 z-0 flex items-center justify-center">
             <Img
@@ -90,7 +103,7 @@ export function BoxBuilder({
         </div>
       </div>
 
-      <dl className="grid grid-cols-3 rounded-b-xl bg-white p-2 text-xs tracking-tighter shadow-lg">
+      <dl className="grid grid-cols-3 gap-x-1 gap-y-0.5 px-2 pt-1.5 pb-2 text-[11px] tracking-tighter">
         <Spec label="전장" unit="(mm)" value={xSize} />
         <Spec label="전폭" unit="(mm)" value={ySize} />
         <Spec label="전고" unit="(mm)" value={zSize} />

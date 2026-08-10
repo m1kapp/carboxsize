@@ -49,7 +49,7 @@ export function ComparePage() {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-2 gap-3">
         {([0, 1] as const).map((index) => {
           const car = index === 0 ? left : right;
           return (

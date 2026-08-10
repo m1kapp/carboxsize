@@ -507,3 +507,7 @@ const FULL_IMPORTED = Math.max(...Object.values(IMPORTED_COUNT));
 /** 수입차 집계가 아직 덜 찬 달인지 — 맞으면 화면에 그렇다고 적어준다. */
 export const importedPending = (month: string) =>
   (IMPORTED_COUNT[month] ?? 0) < FULL_IMPORTED * 0.7;
+
+/** 그 달 판매량의 출처가 된 다나와 판매실적 페이지 */
+export const danawaRecordUrl = (month: string) =>
+  `https://auto.danawa.com/auto/?Work=record&Tab=Model&Month=${month}-00&MonthTo=`;

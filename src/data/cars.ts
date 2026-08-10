@@ -28,6 +28,10 @@ const volume = (a: number, b: number, c: number) =>
 export const carImageUrl = (no?: number) =>
   no ? `https://autoimg.danawa.com/photo/${no}/model_360.png` : null;
 
+/** 제원의 출처가 된 다나와 모델 페이지 */
+export const danawaModelUrl = (no?: number) =>
+  no ? `https://auto.danawa.com/auto/?Work=model&Model=${no}&Tab=spec` : null;
+
 export const CARS: Car[] = [
   { name: "성인사람", xSize: 500, ySize: 500, zSize: 1700, xInSize: 0 },
   { name: "주차장", xSize: 5000, ySize: 2300, zSize: 300, xInSize: 0 },

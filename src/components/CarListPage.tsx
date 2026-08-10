@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { Search, X } from "lucide-react";
 import { CARS } from "../data/cars";
-import { formatMonth, importedPending, LATEST_MONTH, SALES_MONTHS } from "../data/sales";
+import { danawaRecordUrl, formatMonth, importedPending, LATEST_MONTH, SALES_MONTHS } from "../data/sales";
 import { matchesQuery } from "../data/search";
 import { SORT_KEYS, SORT_LABELS, sortCars, type SortDir, type SortKey } from "../data/sort";
 import { BoxBuilder } from "./BoxBuilder";
@@ -72,7 +72,7 @@ export function CarListPage() {
         <p className="-mt-2 text-center text-[11px] text-gray-400">{cars.length}대</p>
       )}
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-2 gap-3">
         {cars.map((car) => (
           <BoxBuilder key={car.name} car={car} month={month} />
         ))}
@@ -101,7 +101,15 @@ export function MonthPicker({ month, onChange }: { month: string; onChange: (m: 
         ))}
       </div>
       <p className="text-center text-[11px] text-gray-400">
-        {formatMonth(month)} 신차 등록 대수 (다나와)
+        {formatMonth(month)} 신차 등록 대수{" "}
+        <a
+          href={danawaRecordUrl(month)}
+          target="_blank"
+          rel="noreferrer noopener"
+          className="underline decoration-dotted underline-offset-2 hover:text-gray-600"
+        >
+          다나와
+        </a>
         {importedPending(month) && " · 수입차는 아직 집계 중"}
       </p>
     </div>

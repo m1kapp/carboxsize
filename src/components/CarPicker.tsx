@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import { Dialog, Img } from "@m1kapp/kit";
 import { ChevronDown, Search } from "lucide-react";
 import { CARS, carImageUrl, spaceVolume, type Car } from "../data/cars";
-import { formatMonth, importedPending, LATEST_MONTH, salesOf, SALES_MONTHS } from "../data/sales";
+import { danawaRecordUrl, formatMonth, importedPending, LATEST_MONTH, salesOf, SALES_MONTHS } from "../data/sales";
 import { matchesQuery } from "../data/search";
 
 type Props = {
@@ -70,9 +70,21 @@ export function CarPicker({ value, onChange, placeholder = "차량을 선택해�
           ))}
         </div>
         <p className="mb-1 text-[11px] text-gray-400">
-          {query
-            ? `${results.length}대`
-            : `${formatMonth(month)} 많이 팔린 순${importedPending(month) ? " · 수입차 집계 중" : ""}`}
+          {query ? (
+            `${results.length}대`
+          ) : (
+            <>
+              {formatMonth(month)} 많이 팔린 순{importedPending(month) && " · 수입차 집계 중"} ·{" "}
+              <a
+                href={danawaRecordUrl(month)}
+                target="_blank"
+                rel="noreferrer noopener"
+                className="underline decoration-dotted underline-offset-2 hover:text-gray-600"
+              >
+                다나와
+              </a>
+            </>
+          )}
         </p>
 
         <ul className="-mx-1 max-h-[50vh] overflow-y-auto">
