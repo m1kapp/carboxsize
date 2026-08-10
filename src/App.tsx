@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { AppShell, AppShellContent, AppShellHeader, Tab, TabBar, Watermark } from "@m1kapp/kit";
 import { GitCompare, LayoutGrid } from "lucide-react";
+import type { Car } from "./data/cars";
 import { CarListPage } from "./components/CarListPage";
 import { ComparePage } from "./components/ComparePage";
 
@@ -10,6 +11,13 @@ type Section = "list" | "compare";
 
 export default function App() {
   const [section, setSection] = useState<Section>("list");
+  // 목록에서 고른 차 — 비교 화면 왼쪽 칸을 이 차로 채운 채 연다
+  const [picked, setPicked] = useState<Car | null>(null);
+
+  const openCompare = (car: Car) => {
+    setPicked(car);
+    setSection("compare");
+  };
 
   return (
     <Watermark color={ACCENT} text="carboxsize">
@@ -27,7 +35,14 @@ export default function App() {
         </AppShellHeader>
 
         <AppShellContent>
-          <div className="m-4">{section === "list" ? <CarListPage /> : <ComparePage />}</div>
+          <div className="m-4">
+            {section === "list" ? (
+              <CarListPage onCompare={openCompare} />
+            ) : (
+              // key를 바꿔 새로 고른 차로 다시 시작하게 한다
+              <ComparePage key={picked?.name ?? "random"} initial={picked} />
+            )}
+          </div>
         </AppShellContent>
 
         <TabBar>
@@ -40,7 +55,10 @@ export default function App() {
           />
           <Tab
             active={section === "compare"}
-            onClick={() => setSection("compare")}
+            onClick={() => {
+              setPicked(null);
+              setSection("compare");
+            }}
             label="비교하기"
             icon={<GitCompare className="h-5 w-5" />}
             activeColor={ACCENT}

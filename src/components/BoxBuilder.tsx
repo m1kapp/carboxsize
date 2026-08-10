@@ -55,6 +55,7 @@ export function BoxBuilder({
               target="_blank"
               rel="noreferrer noopener"
               title="다나와 제원 보기"
+              onClick={(e) => e.stopPropagation()}
               className="truncate text-sm font-semibold text-gray-800 underline decoration-gray-300 decoration-dotted underline-offset-2"
             >
               {car.name}

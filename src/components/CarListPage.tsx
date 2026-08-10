@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { Search, X } from "lucide-react";
-import { CARS } from "../data/cars";
+import { CARS, type Car } from "../data/cars";
 import { danawaRecordUrl, formatMonth, importedPending, LATEST_MONTH, SALES_MONTHS } from "../data/sales";
 import { matchesQuery } from "../data/search";
 import { SORT_KEYS, SORT_LABELS, sortCars, type SortDir, type SortKey } from "../data/sort";
@@ -9,7 +9,7 @@ import { BoxBuilder } from "./BoxBuilder";
 /** 판매량은 많이 팔린 순으로 보는 게 자연스럽고, 치수는 작은 것부터 보는 게 자연스럽다. */
 const defaultDir = (key: SortKey): SortDir => (key === "sales" ? "desc" : "asc");
 
-export function CarListPage() {
+export function CarListPage({ onCompare }: { onCompare: (car: Car) => void }) {
   const [sortKey, setSortKey] = useState<SortKey>("sales");
   const [dir, setDir] = useState<SortDir>(defaultDir("sales"));
   const [query, setQuery] = useState("");
@@ -74,7 +74,14 @@ export function CarListPage() {
 
       <div className="grid grid-cols-2 gap-3">
         {cars.map((car) => (
-          <BoxBuilder key={car.name} car={car} month={month} />
+          <button
+            key={car.name}
+            onClick={() => onCompare(car)}
+            title={`${car.name} 비교하기`}
+            className="min-w-0 cursor-pointer text-left transition-transform active:scale-[0.98]"
+          >
+            <BoxBuilder car={car} month={month} />
+          </button>
         ))}
       </div>
 

@@ -37,12 +37,21 @@ function pickRandomPair(): [string, string] {
   return [RANDOM_POOL[first].name, RANDOM_POOL[second].name];
 }
 
-export function ComparePage() {
+/** 지정한 차 말고 아무 차나 한 대 */
+function pickRandomOther(exclude: string): string {
+  const pool = RANDOM_POOL.filter((c) => c.name !== exclude);
+  return pool[Math.floor(Math.random() * pool.length)].name;
+}
+
+export function ComparePage({ initial }: { initial?: Car | null }) {
   const [names, setNames] = useState<[string | null, string | null]>([null, null]);
   const [left, right] = [byName(names[0]), byName(names[1])];
 
-  // 처음 들어오면 빈 화면 대신 랜덤 두 대를 보여준다
-  useEffect(() => setNames(pickRandomPair()), []);
+  // 목록에서 고른 차가 있으면 그 차를 왼쪽에 두고 상대만 랜덤으로,
+  // 그냥 탭으로 들어왔으면 빈 화면 대신 랜덤 두 대를 보여준다
+  useEffect(() => {
+    setNames(initial ? [initial.name, pickRandomOther(initial.name)] : pickRandomPair());
+  }, [initial]);
 
   const setAt = (index: 0 | 1, name: string) =>
     setNames((prev) => (index === 0 ? [name, prev[1]] : [prev[0], name]));
