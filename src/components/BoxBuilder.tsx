@@ -1,6 +1,7 @@
 import type { CSSProperties } from "react";
 import { Img } from "@m1kapp/kit";
 import { boxVolume, carImageUrl, spaceVolume, type Car } from "../data/cars";
+import { salesOf } from "../data/sales";
 
 /** mm → px. 1/32 배율이면 가장 큰 차(5410mm)도 카드 한 칸(169px)에 들어간다. */
 const SCALE = 1 / 32;
@@ -26,6 +27,7 @@ export function BoxBuilder({
 }: Props) {
   const { xSize, ySize, zSize, xInSize } = car;
   const imageUrl = carImageUrl(car.no);
+  const units = salesOf(car.no);
 
   // 상자 6면 — 앞뒤 / 위아래 / 좌우
   const faces: CSSProperties[] = [
@@ -40,8 +42,11 @@ export function BoxBuilder({
   return (
     <div className="relative flex min-w-0 flex-col">
       {showTitle && (
-        <div className="rounded-t-xl bg-white p-2 pb-1 shadow-lg">
+        <div className="flex items-baseline justify-between gap-1 rounded-t-xl bg-white p-2 pb-1 shadow-lg">
           <h3 className="truncate text-sm font-semibold text-gray-800">{car.name}</h3>
+          {units != null && (
+            <span className="shrink-0 text-[10px] text-gray-400">{units.toLocaleString()}대</span>
+          )}
         </div>
       )}
 

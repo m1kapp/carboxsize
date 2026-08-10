@@ -1,9 +1,11 @@
 import { boxVolume, spaceVolume, type Car } from "./cars";
+import { salesOf } from "./sales";
 
-export type SortKey = "spaceVolume" | "boxVolume" | "xInSize" | "xSize" | "zSize" | "ySize";
+export type SortKey = "sales" | "spaceVolume" | "boxVolume" | "xInSize" | "xSize" | "zSize" | "ySize";
 export type SortDir = "asc" | "desc";
 
 export const SORT_LABELS: Record<SortKey, string> = {
+  sales: "판매",
   spaceVolume: "공간",
   boxVolume: "외형",
   xInSize: "축거",
@@ -16,6 +18,7 @@ export const SORT_KEYS = Object.keys(SORT_LABELS) as SortKey[];
 
 /** SORT_KEYS 와 같은 순서 — 앞 기준이 동점이면 뒤 기준으로 이어서 가른다 */
 const COMPARATORS: Record<SortKey, (a: Car, b: Car) => number> = {
+  sales: (a, b) => (salesOf(a.no) ?? 0) - (salesOf(b.no) ?? 0),
   spaceVolume: (a, b) => spaceVolume(a) - spaceVolume(b),
   boxVolume: (a, b) => boxVolume(a) - boxVolume(b),
   xInSize: (a, b) => a.xInSize - b.xInSize,
@@ -27,6 +30,8 @@ const COMPARATORS: Record<SortKey, (a: Car, b: Car) => number> = {
 /** 해당 기준으로 잴 수 없는 항목(치수 0)은 목록에서 뺀다 — 축거 없는 "주차장" 등 */
 function measurable(car: Car, key: SortKey): boolean {
   switch (key) {
+    case "sales":
+      return salesOf(car.no) != null;
     case "spaceVolume":
       return car.xInSize > 0 && car.ySize > 0 && car.zSize > 0;
     case "boxVolume":

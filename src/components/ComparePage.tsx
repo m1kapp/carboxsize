@@ -1,13 +1,11 @@
 import { useEffect, useState } from "react";
-import { Select } from "@m1kapp/kit";
 import { Shuffle } from "lucide-react";
 import { boxVolume, CARS, spaceVolume, type Car } from "../data/cars";
 import { BoxBuilder } from "./BoxBuilder";
+import { CarPicker } from "./CarPicker";
 
 /** 앞 두 항목(성인사람·주차장)은 기준자라서 랜덤 대상에서 뺀다 */
 const RANDOM_POOL = CARS.slice(2);
-
-const OPTIONS = CARS.map((car) => ({ value: car.name, label: car.name }));
 
 const byName = (name: string | null) => CARS.find((c) => c.name === name) ?? null;
 
@@ -56,12 +54,7 @@ export function ComparePage() {
           const car = index === 0 ? left : right;
           return (
             <div key={index} className="flex flex-col">
-              <Select
-                value={names[index] ?? ""}
-                onChange={(name) => name && setAt(index, name)}
-                placeholder="차량을 선택해주세요"
-                options={OPTIONS}
-              />
+              <CarPicker value={car} onChange={(picked) => setAt(index, picked.name)} />
               <div className="mt-2">
                 {car ? (
                   <BoxBuilder car={car} showTitle={false} />
