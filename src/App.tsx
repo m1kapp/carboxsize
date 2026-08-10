@@ -8,6 +8,8 @@ import { ComparePage } from "./components/ComparePage";
 const ACCENT = "#2563eb";
 // npx m1kkit track https://carboxsize.m1k.app 으로 받은 slug.
 // Vite라 NEXT_PUBLIC_* env를 kit이 못 읽어서 prop으로 직접 넘긴다.
+// claimed는 서버가 알려주는 값이 아니라 크레딧에 표시만 하는 prop이라 직접 켠다.
+// (m1k.app /api/builders 에서 소유자 wingedcompany 로 귀속 확인함)
 const TRACK_SLUG = "gG";
 
 type Section = "list" | "compare";
@@ -23,7 +25,7 @@ export default function App() {
   };
 
   return (
-    <Watermark color={ACCENT} text="carboxsize" trackSlug={TRACK_SLUG}>
+    <Watermark color={ACCENT} text="carboxsize" trackSlug={TRACK_SLUG} claimed>
       <AppShell accent={ACCENT}>
         <AppShellHeader>
           <div className="flex w-full flex-col items-center">
