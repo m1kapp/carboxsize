@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import { Dialog, Img } from "@m1kapp/kit";
 import { ChevronDown, Search } from "lucide-react";
 import { CARS, carImageUrl, spaceVolume, type Car } from "../data/cars";
-import { salesOf } from "../data/sales";
+import { formatMonth, importedPending, LATEST_MONTH, salesOf, SALES_MONTHS } from "../data/sales";
 import { matchesQuery } from "../data/search";
 
 type Props = {
@@ -12,18 +12,19 @@ type Props = {
 };
 
 /** 판매량 있는 차가 위로, 그 안에서 많이 팔린 순. 판매 집계에 없는 차는 공간 큰 순. */
-function byPopularity(a: Car, b: Car) {
-  const [sa, sb] = [salesOf(a.no) ?? -1, salesOf(b.no) ?? -1];
+const byPopularity = (month: string) => (a: Car, b: Car) => {
+  const [sa, sb] = [salesOf(a.no, month) ?? -1, salesOf(b.no, month) ?? -1];
   return sb - sa || spaceVolume(b) - spaceVolume(a);
-}
+};
 
 export function CarPicker({ value, onChange, placeholder = "차량을 선택해주세요" }: Props) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
+  const [month, setMonth] = useState(LATEST_MONTH);
 
   const results = useMemo(
-    () => CARS.filter((c) => matchesQuery(query, c.name, c.brand)).sort(byPopularity),
-    [query],
+    () => CARS.filter((c) => matchesQuery(query, c.name, c.brand)).sort(byPopularity(month)),
+    [query, month],
   );
 
   const close = () => {
@@ -55,13 +56,28 @@ export function CarPicker({ value, onChange, placeholder = "차량을 선택해�
           />
         </div>
 
-        <p className="mt-2 mb-1 text-xs text-gray-500">
-          {query ? `${results.length}대` : "이번 달 많이 팔린 순"}
+        <div className="mt-2 mb-1 flex flex-wrap items-center gap-1">
+          {SALES_MONTHS.map((m) => (
+            <button
+              key={m}
+              onClick={() => setMonth(m)}
+              className={`rounded-full px-2 py-0.5 text-[11px] font-medium transition-all ${
+                m === month ? "bg-gray-800 text-white" : "bg-gray-100 text-gray-500 hover:bg-gray-200"
+              }`}
+            >
+              {formatMonth(m)}
+            </button>
+          ))}
+        </div>
+        <p className="mb-1 text-[11px] text-gray-400">
+          {query
+            ? `${results.length}대`
+            : `${formatMonth(month)} 많이 팔린 순${importedPending(month) ? " · 수입차 집계 중" : ""}`}
         </p>
 
         <ul className="-mx-1 max-h-[50vh] overflow-y-auto">
           {results.map((car) => {
-            const units = salesOf(car.no);
+            const units = salesOf(car.no, month);
             const image = carImageUrl(car.no);
             return (
               <li key={car.name}>

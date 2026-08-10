@@ -1,7 +1,8 @@
 import type { CSSProperties } from "react";
 import { Img } from "@m1kapp/kit";
 import { boxVolume, carImageUrl, spaceVolume, type Car } from "../data/cars";
-import { salesOf } from "../data/sales";
+import { LATEST_MONTH, salesOf } from "../data/sales";
+import { CHIP_TONE, chipsFor } from "../data/rank";
 
 /** mm → px. 1/32 배율이면 가장 큰 차(5410mm)도 카드 한 칸(169px)에 들어간다. */
 const SCALE = 1 / 32;
@@ -17,6 +18,8 @@ type Props = {
   boxColor?: string;
   /** 카드 상단 제목 줄 — 비교 화면처럼 이름을 밖에서 그릴 땐 끈다 */
   showTitle?: boolean;
+  /** 판매 순위 칩과 대수를 어느 달 기준으로 볼지 */
+  month?: string;
 };
 
 export function BoxBuilder({
@@ -24,10 +27,12 @@ export function BoxBuilder({
   rotation = DEFAULT_ROTATION,
   boxColor = "rgba(0,0,0,0.1)",
   showTitle = true,
+  month = LATEST_MONTH,
 }: Props) {
   const { xSize, ySize, zSize, xInSize } = car;
   const imageUrl = carImageUrl(car.no);
-  const units = salesOf(car.no);
+  const units = salesOf(car.no, month);
+  const chips = chipsFor(car, month);
 
   // 상자 6면 — 앞뒤 / 위아래 / 좌우
   const faces: CSSProperties[] = [
@@ -59,6 +64,19 @@ export function BoxBuilder({
               className="object-contain"
               style={{ width: px(xSize) }}
             />
+          </div>
+        )}
+
+        {chips.length > 0 && (
+          <div className="absolute top-1 left-1 z-20 flex flex-col items-start gap-1">
+            {chips.map((chip) => (
+              <span
+                key={chip.label}
+                className={`rounded-full px-1.5 py-0.5 text-[9px] font-bold tracking-tight text-white shadow ${CHIP_TONE[chip.tone]}`}
+              >
+                {chip.label}
+              </span>
+            ))}
           </div>
         )}
 

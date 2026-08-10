@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { Search, X } from "lucide-react";
 import { CARS } from "../data/cars";
-import { SALES_MONTH } from "../data/sales";
+import { formatMonth, importedPending, LATEST_MONTH, SALES_MONTHS } from "../data/sales";
 import { matchesQuery } from "../data/search";
 import { SORT_KEYS, SORT_LABELS, sortCars, type SortDir, type SortKey } from "../data/sort";
 import { BoxBuilder } from "./BoxBuilder";
@@ -9,17 +9,16 @@ import { BoxBuilder } from "./BoxBuilder";
 /** 판매량은 많이 팔린 순으로 보는 게 자연스럽고, 치수는 작은 것부터 보는 게 자연스럽다. */
 const defaultDir = (key: SortKey): SortDir => (key === "sales" ? "desc" : "asc");
 
-const monthLabel = (ym: string) => `${Number(ym.slice(5, 7))}월`;
-
 export function CarListPage() {
   const [sortKey, setSortKey] = useState<SortKey>("sales");
   const [dir, setDir] = useState<SortDir>(defaultDir("sales"));
   const [query, setQuery] = useState("");
+  const [month, setMonth] = useState(LATEST_MONTH);
 
   const cars = useMemo(() => {
     const found = CARS.filter((c) => matchesQuery(query, c.name, c.brand));
-    return sortCars(found, sortKey, dir);
-  }, [sortKey, dir, query]);
+    return sortCars(found, sortKey, dir, month);
+  }, [sortKey, dir, query, month]);
 
   // 같은 기준을 다시 누르면 방향만 뒤집고, 다른 기준으로 옮기면 그 기준의 기본 방향으로
   const pick = (key: SortKey) => {
@@ -67,21 +66,44 @@ export function CarListPage() {
         })}
       </div>
 
-      <p className="-mt-2 text-center text-[11px] text-gray-400">
-        {sortKey === "sales"
-          ? `국산차 ${monthLabel(SALES_MONTH.domestic)} · 수입차 ${monthLabel(SALES_MONTH.imported)} 신차 등록 대수 (다나와)`
-          : `${cars.length}대`}
-      </p>
+      {sortKey === "sales" ? (
+        <MonthPicker month={month} onChange={setMonth} />
+      ) : (
+        <p className="-mt-2 text-center text-[11px] text-gray-400">{cars.length}대</p>
+      )}
 
       <div className="grid grid-cols-2 gap-4">
         {cars.map((car) => (
-          <BoxBuilder key={car.name} car={car} />
+          <BoxBuilder key={car.name} car={car} month={month} />
         ))}
       </div>
 
-      {cars.length === 0 && (
-        <p className="py-10 text-center text-sm text-gray-400">찾는 차가 없어요</p>
-      )}
+      {cars.length === 0 && <p className="py-10 text-center text-sm text-gray-400">찾는 차가 없어요</p>}
+    </div>
+  );
+}
+
+/** 판매 기준월 선택 — 어느 달 통계를 보고 있는지 화면에 늘 떠 있게 한다. */
+export function MonthPicker({ month, onChange }: { month: string; onChange: (m: string) => void }) {
+  return (
+    <div className="-mt-2 flex flex-col items-center gap-1">
+      <div className="flex gap-1 overflow-x-auto">
+        {SALES_MONTHS.map((m) => (
+          <button
+            key={m}
+            onClick={() => onChange(m)}
+            className={`shrink-0 rounded-full px-2 py-1 text-[11px] font-medium transition-all ${
+              m === month ? "bg-gray-800 text-white" : "bg-white text-gray-500 shadow-sm hover:bg-gray-50"
+            }`}
+          >
+            {formatMonth(m)}
+          </button>
+        ))}
+      </div>
+      <p className="text-center text-[11px] text-gray-400">
+        {formatMonth(month)} 신차 등록 대수 (다나와)
+        {importedPending(month) && " · 수입차는 아직 집계 중"}
+      </p>
     </div>
   );
 }
