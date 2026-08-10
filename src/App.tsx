@@ -4,7 +4,7 @@ import { GitCompare, LayoutGrid } from "lucide-react";
 import { CarListPage } from "./components/CarListPage";
 import { ComparePage } from "./components/ComparePage";
 
-const ACCENT = "#7c3aed";
+const ACCENT = "#2563eb";
 
 type Section = "list" | "compare";
 

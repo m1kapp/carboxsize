@@ -1,10 +1,11 @@
 {
   "name": "Car Box Size",
   "short_name": "Car Box Size",
+  "description": "차를 상자로 바꿔 크기를 비교한다",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#7c3aed",
-  "theme_color": "#7c3aed",
+  "background_color": "#2563eb",
+  "theme_color": "#2563eb",
   "icons": [
     {
       "src": "/icon-192.png",
