@@ -34,7 +34,7 @@ export const danawaModelUrl = (no?: number) =>
 
 export const CARS: Car[] = [
   { name: "성인사람", xSize: 500, ySize: 500, zSize: 1700, xInSize: 0 },
-  { name: "주차장", xSize: 5000, ySize: 2300, zSize: 300, xInSize: 0 },
+  { name: "주차장", xSize: 5000, ySize: 2500, zSize: 300, xInSize: 0 },
   { name: "캐스퍼 (2025)", xSize: 3595, ySize: 1595, zSize: 1605, xInSize: 2400, brand: "현대", no: 4671 },
   { name: "캐스퍼EV (2025)", xSize: 3845, ySize: 1610, zSize: 1610, xInSize: 2580, brand: "현대", no: 4653 },
   { name: "아반떼 (2026/25/23)", xSize: 4710, ySize: 1825, zSize: 1420, xInSize: 2720, trunk: 474, brand: "현대", no: 4455 },
