@@ -11,6 +11,7 @@
  * 아니라 화면에 있는 걸 미리 적어두는 것이라 클로킹이 아니다.
  */
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { renderOg } from "./lib/og.mjs";
 import { fileURLToPath } from "node:url";
 import { dirname, resolve } from "node:path";
 
@@ -105,6 +106,24 @@ writeFileSync(resolve(root, "dist/sitemap.xml"),
 console.log(`✓ SEO: 차량 ${real.length}종 + FAQ ${FAQ.length}개 주입, robots.txt·sitemap.xml 생성`);
 
 
+/** build-seo 는 x/y/z/xin 으로, og.mjs 는 전장·전고·축거 이름으로 부른다 — 여기서 한 번만 맞춘다 */
+const toOgCar = (c) => ({ xSize: c.x, zSize: c.z, xInSize: c.xin, label: c.name.split(" (")[0] });
+
+// 메인 OG — 대표 차 두 대로 "차를 상자로 잰다"를 보여준다
+{
+  const pick = (name) => real.find((c) => c.name.startsWith(name));
+  // 크기 대비가 큰 두 대를 세운다 — 나란히 놓았을 때 한눈에 차이가 보여야 한다
+  const [big, small] = [pick("스타리아") ?? real[0], pick("모닝") ?? real[1]];
+  const png = await renderOg({
+    title: "Car Box Size",
+    subtitle: `국산·수입차 ${real.length}종을 상자로 바꿔서 크기 비교`,
+    headline: { value: `${real.length}종`, label: "매달 갱신" },
+    cars: [big, small].map(toOgCar),
+    footer: "코어 = 축거 × 전폭 × 전고 · 외형 = 전장 × 전폭 × 전고",
+  });
+  writeFileSync(resolve(root, "dist/og-image.png"), png);
+}
+
 // ── 비교 페이지 ─────────────────────────────────────────────────────────
 // "쏘렌토 vs 싼타페 크기"처럼 조합으로 검색하는 사람을 위한 페이지.
 // 아무 조합이나 만들면 색인만 낭비하므로, 실제로 저울질하는 쌍만 고른다.
@@ -173,6 +192,23 @@ for (const { a, b } of TOP) {
 <p><a href="/">국산·수입차 ${real.length}종 크기 비교 전체 보기</a></p>
 `.trim();
 
+  // 조합 전용 OG — 공유될 때 그 두 대가 그대로 보인다
+  const ogName = `${slug(a)}-vs-${slug(b)}.png`;
+  const diff = Math.abs(core(a) - core(b));
+  const bigger = core(a) >= core(b) ? a : b;
+  const png = await renderOg({
+    title: `${label(a)} vs ${label(b)}`,
+    subtitle: `${a.segment} · 전장 ${a.x} vs ${b.x}mm · 축거 ${a.xin} vs ${b.xin}mm`,
+    headline: diff >= 0.01
+      ? { value: `+${diff.toFixed(2)}m³`, label: `${label(bigger)}가 코어 더 큼` }
+      : { value: "≈", label: "코어가 거의 같음" },
+    cars: [a, b].map(toOgCar),
+    footer: "코어 = 축거 × 전폭 × 전고",
+  });
+  mkdirSync(resolve(root, "dist/og"), { recursive: true });
+  writeFileSync(resolve(root, `dist/og/${ogName}`), png);
+  const ogUrl = `${SITE}/og/${encodeURIComponent(ogName)}`;
+
   let page = html
     .replace(/<title>[^<]*<\/title>/, `<title>${esc(title)}</title>`)
     .replace(/(<meta name="description" content=")[^"]*(")/, `$1${esc(desc)}$2`)
@@ -181,6 +217,7 @@ for (const { a, b } of TOP) {
     .replace(/(<meta name="twitter:title" content=")[^"]*(")/, `$1${esc(title)}$2`)
     .replace(/(<meta name="twitter:description" content=")[^"]*(")/, `$1${esc(desc)}$2`)
     .replace(`href="${SITE}/"`, `href="${SITE}${path}"`)
+    .replace(new RegExp(`${SITE}/og-image\\.png`, "g"), ogUrl)
     .replace(/<div id="root">[\s\S]*?<\/div>/, `<div id="root">${body}</div>`);
 
   // 한글 경로와 퍼센트 인코딩 경로를 둘 다 만든다.
@@ -200,4 +237,4 @@ writeFileSync(resolve(root, "dist/sitemap.xml"),
   urls.map((u) => `  <url>\n    <loc>${encodeURI(u)}</loc>\n    <lastmod>${today}</lastmod>\n  </url>`).join("\n") +
   `\n</urlset>\n`);
 
-console.log(`✓ 비교 페이지 ${TOP.length}개 생성 (후보 ${pairs.length}쌍 중)`);
+console.log(`✓ 비교 페이지 ${TOP.length}개 + OG 이미지 ${TOP.length + 1}장 생성 (후보 ${pairs.length}쌍 중)`);
