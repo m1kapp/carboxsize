@@ -45,6 +45,20 @@ npm run check:claim    # m1k.app 등록·귀속 상태가 config와 맞는지 (�
   이유와 함께 적습니다. 그래야 다음 사람이 같은 조사를 반복하지 않습니다.
 - 색·slug 같은 사이트 설정은 `src/config.ts` 한 곳에 있습니다.
 
+## SEO
+
+SPA라 초기 HTML의 `<body>`가 비어 있습니다. 크롤러가 JS를 실행해주길 기대하는 대신,
+`scripts/build-seo.mjs`가 빌드 뒤에 내용을 심습니다(`npm run build`에 포함).
+
+- `#root` 안에 h1·제원표 100행·상식 Q&A를 넣습니다. React가 `createRoot`로 마운트하며
+  통째로 갈아치우므로 화면에는 한 프레임도 보이지 않습니다. **화면에 없는 걸 심는 게 아니라
+  화면에 있는 걸 미리 적어두는 것**이라 클로킹이 아닙니다.
+- `canonical`, FAQPage 구조화 데이터를 함께 넣습니다.
+- `robots.txt`·`sitemap.xml`을 생성합니다. 이게 없으면 `vercel.json`의 SPA rewrite가
+  가로채서 `robots.txt` 요청에 HTML을 돌려줍니다(실제로 그랬습니다).
+
+내용은 전부 `cars.ts`에서 생성하므로 차를 추가하면 자동으로 따라갑니다.
+
 ## 스택
 
 Vite · React 19 · TypeScript · Tailwind 4 · [`@m1kapp/kit`](https://github.com/m1kapp/kit)
