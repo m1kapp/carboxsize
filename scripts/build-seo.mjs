@@ -193,9 +193,9 @@ for (const { a, b } of TOP) {
     cars: [a, b].map(toOgCar),
     footer: "코어 = 축거 × 전폭 × 전고",
   });
-  mkdirSync(resolve(root, "dist/og"), { recursive: true });
-  writeFileSync(resolve(root, `dist/og/${ogName}`), png);
-  const ogUrl = `${SITE}/og/${encodeURIComponent(ogName)}`;
+  mkdirSync(resolve(root, "dist/og-share"), { recursive: true });
+  writeFileSync(resolve(root, `dist/og-share/${ogName}`), png);
+  const ogUrl = `${SITE}/og-share/${encodeURIComponent(ogName)}`;
 
   let page = html
     .replace(/<title>[^<]*<\/title>/, `<title>${esc(title)}</title>`)
