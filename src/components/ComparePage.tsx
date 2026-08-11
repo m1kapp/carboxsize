@@ -1,9 +1,10 @@
-import { useEffect, useState } from "react";
-import { Shuffle } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { ChevronDown, Shuffle } from "lucide-react";
 import { boxVolume, CARS, spaceVolume, type Car } from "../data/cars";
 import { BoxBuilder } from "./BoxBuilder";
 import { CarPicker } from "./CarPicker";
 import { comparePath } from "../data/compare-url";
+import { ShareButton } from "@m1kapp/kit";
 import { PairShortcuts } from "./PairShortcuts";
 
 /** 앞 두 항목(성인사람·주차장)은 기준자라서 랜덤 대상에서 뺀다 */
@@ -63,6 +64,8 @@ export function ComparePage({ initial, opponent }: { initial?: Car | null; oppon
     if (window.location.pathname !== path) window.history.replaceState(null, "", path);
   }, [left, right]);
 
+  const listRef = useRef<HTMLDivElement>(null);
+
   const setAt = (index: 0 | 1, name: string) =>
     setNames((prev) => (index === 0 ? [name, prev[1]] : [prev[0], name]));
 
@@ -99,17 +102,36 @@ export function ComparePage({ initial, opponent }: { initial?: Car | null; oppon
         </div>
       )}
 
-      <div className="flex justify-center">
+      <div className="flex items-center justify-center gap-2">
         <button
           onClick={() => setNames(pickRandomPair())}
-          className="flex items-center gap-1 rounded-full bg-white px-6 py-3 text-gray-700 shadow-lg transition-all hover:bg-gray-50 hover:shadow-md"
+          className="flex items-center gap-1.5 rounded-full bg-white px-5 py-2.5 text-sm font-medium text-gray-700 shadow-sm ring-1 ring-black/5 transition-all hover:bg-gray-50 active:scale-[0.98]"
         >
-          <span>랜덤</span>
-          <Shuffle className="h-5 w-5" />
+          <Shuffle className="h-4 w-4" />
+          랜덤
         </button>
+
+        {/* 공유하면 그 조합 주소가 그대로 나간다 — 받는 사람은 같은 비교를 바로 본다 */}
+        {left && right && (
+          <ShareButton
+            url={`https://carboxsize.m1k.app${comparePath(left, right)}`}
+            title={`${left.name.split(" (")[0]} vs ${right.name.split(" (")[0]} 크기 비교`}
+          />
+        )}
       </div>
 
-      <PairShortcuts current={names} onPick={([a, b]) => setNames([a.name, b.name])} />
+      {/* 아래에 더 있다는 신호 — 없으면 비교 한 번 하고 나간다 */}
+      <button
+        onClick={() => listRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })}
+        className="mx-auto -mb-1 flex items-center gap-1 py-1 text-[11px] text-gray-400 transition-colors hover:text-gray-600"
+      >
+        자주 비교하는 조합 보기
+        <ChevronDown className="h-3.5 w-3.5" />
+      </button>
+
+      <div ref={listRef} className="scroll-mt-2">
+        <PairShortcuts current={names} onPick={([a, b]) => setNames([a.name, b.name])} />
+      </div>
     </div>
   );
 }
