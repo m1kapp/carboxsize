@@ -11,7 +11,7 @@
  * 아니라 화면에 있는 걸 미리 적어두는 것이라 클로킹이 아니다.
  */
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
-import { renderOg } from "./lib/og.mjs";
+import { carPhoto, renderOg } from "./lib/og.mjs";
 import { fileURLToPath } from "node:url";
 import { dirname, resolve } from "node:path";
 
@@ -107,7 +107,9 @@ console.log(`✓ SEO: 차량 ${real.length}종 + FAQ ${FAQ.length}개 주입, ro
 
 
 /** build-seo 는 x/y/z/xin 으로, og.mjs 는 전장·전고·축거 이름으로 부른다 — 여기서 한 번만 맞춘다 */
-const toOgCar = (c) => ({ xSize: c.x, zSize: c.z, xInSize: c.xin, label: c.name.split(" (")[0] });
+const toOgCar = async (c) => ({
+  xSize: c.x, zSize: c.z, xInSize: c.xin, label: c.name.split(" (")[0], photo: await carPhoto(c.no),
+});
 
 // 메인 OG — 대표 차 두 대로 "차를 상자로 잰다"를 보여준다
 {
@@ -118,7 +120,7 @@ const toOgCar = (c) => ({ xSize: c.x, zSize: c.z, xInSize: c.xin, label: c.name.
     title: "Car Box Size",
     subtitle: `국산·수입차 ${real.length}종을 상자로 바꿔서 크기 비교`,
     headline: { value: `${real.length}종`, label: "매달 갱신" },
-    cars: [big, small].map(toOgCar),
+    cars: await Promise.all([big, small].map(toOgCar)),
     footer: "코어 = 축거 × 전폭 × 전고 · 외형 = 전장 × 전폭 × 전고",
   });
   writeFileSync(resolve(root, "dist/og-image.png"), png);
@@ -190,7 +192,7 @@ for (const { a, b } of TOP) {
     headline: diff >= 0.01
       ? { value: `+${diff.toFixed(2)}m³`, label: `${label(bigger)}가 코어 더 큼` }
       : { value: "≈", label: "코어가 거의 같음" },
-    cars: [a, b].map(toOgCar),
+    cars: await Promise.all([a, b].map(toOgCar)),
     footer: "코어 = 축거 × 전폭 × 전고",
   });
   mkdirSync(resolve(root, "dist/og-share"), { recursive: true });

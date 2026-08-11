@@ -10,7 +10,7 @@
 import { mkdirSync, readFileSync, writeFileSync, rmSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, resolve } from "node:path";
-import { renderOg, THUMB_WIDTH } from "./lib/og.mjs";
+import { carPhoto, renderOg, THUMB_WIDTH } from "./lib/og.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -22,6 +22,7 @@ for (const m of carsSource.matchAll(
   cars.set(m[1], {
     name: m[1], x: +m[2], y: +m[3], z: +m[4], xin: +m[5],
     segment: /segment: "([^"]+)"/.exec(m[0])?.[1] ?? null,
+    no: Number(/\bno: (\d+)/.exec(m[0])?.[1] ?? 0) || null,
   });
 }
 
@@ -50,7 +51,9 @@ for (const [a, b] of pairs) {
     headline: diff >= 0.01
       ? { value: `+${diff.toFixed(2)}m³`, label: `${label(bigger)}가 코어 더 큼` }
       : { value: "≈", label: "코어가 거의 같음" },
-    cars: [a, b].map((c) => ({ xSize: c.x, zSize: c.z, xInSize: c.xin, label: label(c) })),
+    cars: await Promise.all([a, b].map(async (c) => ({
+      xSize: c.x, zSize: c.z, xInSize: c.xin, label: label(c), photo: await carPhoto(c.no),
+    }))),
     footer: "코어 = 축거 × 전폭 × 전고",
   });
   writeFileSync(resolve(dir, `${slug(a)}-vs-${slug(b)}.png`), png);

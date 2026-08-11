@@ -8,3 +8,4 @@ dist
 .env*
 .fixearly-history.json
 public/og
+scripts/.cache

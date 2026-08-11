@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, resolve } from "node:path";
 import satori from "satori";
@@ -9,6 +9,23 @@ const fonts = [
   { name: "Pretendard", weight: 400, style: "normal", data: readFileSync(resolve(here, "../fonts/Pretendard-regular.otf")) },
   { name: "Pretendard", weight: 800, style: "normal", data: readFileSync(resolve(here, "../fonts/Pretendard-bold.otf")) },
 ];
+
+/**
+ * 다나와 차 사진을 받아 dataURI 로 만든다. satori 는 원격 이미지를 스스로 못 받으므로
+ * 미리 넣어줘야 한다. 빌드마다 100장을 다시 받지 않도록 캐시한다.
+ */
+const cacheDir = resolve(here, "../.cache");
+export async function carPhoto(no) {
+  if (!no) return null;
+  const file = resolve(cacheDir, `${no}.png`);
+  if (!existsSync(file)) {
+    mkdirSync(cacheDir, { recursive: true });
+    const res = await fetch(`https://autoimg.danawa.com/photo/${no}/model_360.png`);
+    if (!res.ok) return null;
+    writeFileSync(file, Buffer.from(await res.arrayBuffer()));
+  }
+  return `data:image/png;base64,${readFileSync(file).toString("base64")}`;
+}
 
 const BLUE = "#2563eb";
 const PURPLE = "#7c3aed";
@@ -22,6 +39,8 @@ const el = (type, style, ...children) => ({
   props: { style: { display: "flex", ...style }, children: children.length > 1 ? children : children[0] },
 });
 const text = (value, style) => el("div", style, value);
+/** el() 은 두 번째 인자를 전부 style 로 넣는다 — img 는 src 가 props 로 가야 해서 따로 만든다 */
+const img = (src, style) => ({ type: "img", props: { src, style: { display: "flex", ...style } } });
 
 /**
  * 차 옆모습 — 몸체 상자에 바퀴 두 개.
@@ -33,21 +52,17 @@ const text = (value, style) => el("div", style, value);
 function carShape(car, scale, { fill, border }) {
   const w = car.xSize * scale;
   const h = car.zSize * scale;
-  const wheel = Math.max(26, h * 0.3);
-  // 오버행이 앞뒤로 균등하다고 보고 축거를 가운데 놓는다 — 정확한 바퀴 위치는 데이터에 없다
-  const inset = (w - car.xInSize * scale) / 2;
 
-  return el("div", { position: "relative", width: w, height: h + wheel / 2 },
+  // 차 사진을 전장 폭에 맞춰 깔고 그 위에 상자를 겹친다 — 앱 카드와 같은 방식이다.
+  // 사진이 없으면 상자만 남는다.
+  return el("div", { position: "relative", width: w, height: h },
+    car.photo
+      ? img(car.photo, { position: "absolute", left: 0, bottom: 0, width: w, height: h, objectFit: "contain" })
+      : el("div", {}),
     el("div", {
-      position: "absolute", left: 0, bottom: wheel / 2, width: w, height: h,
-      backgroundColor: fill, border: `3px solid ${border}`, borderRadius: 14,
+      position: "absolute", left: 0, bottom: 0, width: w, height: h,
+      backgroundColor: fill, border: `3px solid ${border}`, borderRadius: 10,
     }),
-    ...[inset - wheel / 2, w - inset - wheel / 2].map((x, i) =>
-      el("div", {
-        position: "absolute", left: x, bottom: 0, width: wheel, height: wheel,
-        borderRadius: wheel, backgroundColor: border, key: String(i),
-      }),
-    ),
   );
 }
 
@@ -76,7 +91,7 @@ export async function renderOg({ title, subtitle, headline, cars, footer, width 
       el("div", { alignItems: "flex-end", gap: 44 },
         ...cars.map((car) =>
           el("div", { flexDirection: "column", alignItems: "flex-start", gap: 10 },
-            carShape(car, scale, { fill: "rgba(255,255,255,0.22)", border: "#ffffff" }),
+            carShape(car, scale, { fill: "rgba(255,255,255,0.10)", border: "rgba(255,255,255,0.9)" }),
             text(car.label, { fontSize: 24, fontWeight: 800 }),
           ),
         ),
