@@ -59,13 +59,6 @@ export default function App() {
             activeColor={ACCENT}
           />
           <Tab
-            active={section === "facts"}
-            onClick={() => setSection("facts")}
-            label="상식"
-            icon={<BookOpen className="h-5 w-5" />}
-            activeColor={ACCENT}
-          />
-          <Tab
             active={section === "compare"}
             onClick={() => {
               setPicked(null);
@@ -73,6 +66,13 @@ export default function App() {
             }}
             label="비교하기"
             icon={<GitCompare className="h-5 w-5" />}
+            activeColor={ACCENT}
+          />
+          <Tab
+            active={section === "facts"}
+            onClick={() => setSection("facts")}
+            label="상식"
+            icon={<BookOpen className="h-5 w-5" />}
             activeColor={ACCENT}
           />
         </TabBar>
