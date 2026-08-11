@@ -88,12 +88,17 @@ export async function fetchYears(no) {
   return [String(years[0]), ...years.slice(1).map((y) => String(y).slice(2))].join("/");
 }
 
-/** 모델명·제조사 (keywords 메타에 제조사가 먼저 온다) */
+/**
+ * 모델명·제조사·세그먼트.
+ * 세그먼트("중형SUV", "준대형", "RV/MPV"…)는 브랜드 링크 옆에 두 번째로 온다.
+ */
 export async function fetchModelInfo(no) {
   const html = await get({ Work: "model", Model: no });
+  const links = [...html.matchAll(/Brand=\d+[^>]*>\s*([^<]{2,14})/g)].map((m) => m[1].trim());
   return {
     title: html.match(/<title>\s*(.*?)\s*종합정보/)?.[1] ?? null,
     brand: html.match(/name='keywords' content='([^,]+),/)?.[1]?.trim() ?? null,
+    segment: links[1] && links[1] !== "브랜드 정보" ? links[1] : null,
   };
 }
 

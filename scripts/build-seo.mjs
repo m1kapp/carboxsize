@@ -10,7 +10,7 @@
  * 한 프레임도 보이지 않고, 크롤러는 초기 HTML을 그대로 읽는다. 화면에 없는 걸 심는 게
  * 아니라 화면에 있는 걸 미리 적어두는 것이라 클로킹이 아니다.
  */
-import { readFileSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, resolve } from "node:path";
 
@@ -24,6 +24,8 @@ const cars = [...carsSource.matchAll(
   name: m[1],
   x: +m[2], y: +m[3], z: +m[4], xin: +m[5],
   brand: m[6] ?? null,
+  segment: /segment: "([^"]+)"/.exec(m[0])?.[1] ?? null,
+  no: Number(/\bno: (\d+)/.exec(m[0])?.[1] ?? 0) || null,
 }));
 if (cars.length < 50) throw new Error(`cars.ts 파싱 실패 — ${cars.length}대만 읽혔습니다`);
 
@@ -101,3 +103,96 @@ writeFileSync(resolve(root, "dist/sitemap.xml"),
   `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n  <url>\n    <loc>${SITE}/</loc>\n    <lastmod>${today}</lastmod>\n    <changefreq>weekly</changefreq>\n  </url>\n</urlset>\n`);
 
 console.log(`✓ SEO: 차량 ${real.length}종 + FAQ ${FAQ.length}개 주입, robots.txt·sitemap.xml 생성`);
+
+
+// ── 비교 페이지 ─────────────────────────────────────────────────────────
+// "쏘렌토 vs 싼타페 크기"처럼 조합으로 검색하는 사람을 위한 페이지.
+// 아무 조합이나 만들면 색인만 낭비하므로, 실제로 저울질하는 쌍만 고른다.
+//   · 같은 세그먼트 — 부피만 보면 "그랜저 vs 셀토스"가 나오는데 아무도 그렇게 안 고민한다
+//   · 코어 차이 15% 이내 — 체급이 다르면 비교가 아니다
+//   · 둘 다 팔리는 차 — 안 팔리는 차 조합은 검색되지 않는다
+const salesSource = readFileSync(resolve(root, "src/data/sales.ts"), "utf8");
+const latestBlock = salesSource.match(/"(\d{4}-\d{2})": \{([\s\S]*?)\n  \},/);
+const units = {};
+for (const m of latestBlock[2].matchAll(/(\d+): (\d+),/g)) units[m[1]] = Number(m[2]);
+
+const core = (c) => m3(c.xin, c.y, c.z);
+const slug = (c) => c.name.split(" (")[0].replace(/\s+/g, "");
+
+const sellable = real
+  .filter((c) => c.no && units[c.no] && c.segment && c.segment !== "상용")
+  .sort((a, b) => units[b.no] - units[a.no]);
+
+const pairs = [];
+for (let i = 0; i < sellable.length; i++) {
+  for (let j = i + 1; j < sellable.length; j++) {
+    const [a, b] = [sellable[i], sellable[j]];
+    if (a.segment !== b.segment) continue;
+    if (Math.abs(core(a) - core(b)) / Math.max(core(a), core(b)) > 0.15) continue;
+    pairs.push({ a, b, score: Math.min(units[a.no], units[b.no]) });
+  }
+}
+pairs.sort((p, q) => q.score - p.score);
+const TOP = pairs.slice(0, 120);
+
+const label = (c) => c.name.split(" (")[0];
+const diffLine = (a, b, get, unit, verb) => {
+  const d = get(a) - get(b);
+  if (d === 0) return `${label(a)}와 ${label(b)}는 ${verb.noun}이 같습니다.`;
+  const [win, lose] = d > 0 ? [a, b] : [b, a];
+  return `${label(win)}가 ${label(lose)}보다 ${unit(Math.abs(d))} ${verb.more}.`;
+};
+
+for (const { a, b } of TOP) {
+  const title = `${label(a)} vs ${label(b)} 크기 비교 — Car Box Size`;
+  const desc =
+    `${label(a)}와 ${label(b)}의 전장·전폭·전고·축거를 나란히 비교합니다. ` +
+    `코어 ${core(a)} vs ${core(b)}m³, 외형 ${m3(a.x, a.y, a.z)} vs ${m3(b.x, b.y, b.z)}m³.`;
+  const path = `/compare/${slug(a)}-vs-${slug(b)}`;
+
+  const body = `
+<h1>${esc(label(a))} vs ${esc(label(b))} 크기 비교</h1>
+<p>${esc(desc)}</p>
+<table>
+<thead><tr><th>항목</th><th>${esc(label(a))}</th><th>${esc(label(b))}</th></tr></thead>
+<tbody>
+<tr><th scope="row">전장(mm)</th><td>${a.x}</td><td>${b.x}</td></tr>
+<tr><th scope="row">전폭(mm)</th><td>${a.y}</td><td>${b.y}</td></tr>
+<tr><th scope="row">전고(mm)</th><td>${a.z}</td><td>${b.z}</td></tr>
+<tr><th scope="row">축거(mm)</th><td>${a.xin}</td><td>${b.xin}</td></tr>
+<tr><th scope="row">코어(m³)</th><td>${core(a)}</td><td>${core(b)}</td></tr>
+<tr><th scope="row">외형(m³)</th><td>${m3(a.x, a.y, a.z)}</td><td>${m3(b.x, b.y, b.z)}</td></tr>
+</tbody>
+</table>
+<ul>
+<li>${esc(diffLine(a, b, (c) => c.xin, (v) => `${v}mm`, { noun: "축거", more: "축거가 깁니다" }))}</li>
+<li>${esc(diffLine(a, b, (c) => c.x, (v) => `${v}mm`, { noun: "전장", more: "전장이 깁니다" }))}</li>
+<li>${esc(diffLine(a, b, (c) => c.z, (v) => `${v}mm`, { noun: "전고", more: "전고가 높습니다" }))}</li>
+<li>${esc(diffLine(a, b, core, (v) => `${v.toFixed(2)}m³`, { noun: "코어", more: "코어가 큽니다" }))}</li>
+</ul>
+<p><a href="/">국산·수입차 ${real.length}종 크기 비교 전체 보기</a></p>
+`.trim();
+
+  let page = html
+    .replace(/<title>[^<]*<\/title>/, `<title>${esc(title)}</title>`)
+    .replace(/(<meta name="description" content=")[^"]*(")/, `$1${esc(desc)}$2`)
+    .replace(/(<meta property="og:title" content=")[^"]*(")/, `$1${esc(title)}$2`)
+    .replace(/(<meta property="og:description" content=")[^"]*(")/, `$1${esc(desc)}$2`)
+    .replace(/(<meta name="twitter:title" content=")[^"]*(")/, `$1${esc(title)}$2`)
+    .replace(/(<meta name="twitter:description" content=")[^"]*(")/, `$1${esc(desc)}$2`)
+    .replace(`href="${SITE}/"`, `href="${SITE}${path}"`)
+    .replace(/<div id="root">[\s\S]*?<\/div>/, `<div id="root">${body}</div>`);
+
+  const dir = resolve(root, `dist${path}`);
+  mkdirSync(dir, { recursive: true });
+  writeFileSync(resolve(dir, "index.html"), page);
+}
+
+// sitemap 다시 — 메인 + 비교 페이지 전부
+const urls = [`${SITE}/`, ...TOP.map(({ a, b }) => `${SITE}/compare/${slug(a)}-vs-${slug(b)}`)];
+writeFileSync(resolve(root, "dist/sitemap.xml"),
+  `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n` +
+  urls.map((u) => `  <url>\n    <loc>${encodeURI(u)}</loc>\n    <lastmod>${today}</lastmod>\n  </url>`).join("\n") +
+  `\n</urlset>\n`);
+
+console.log(`✓ 비교 페이지 ${TOP.length}개 생성 (후보 ${pairs.length}쌍 중)`);

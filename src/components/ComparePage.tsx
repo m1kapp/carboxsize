@@ -3,6 +3,7 @@ import { Shuffle } from "lucide-react";
 import { boxVolume, CARS, spaceVolume, type Car } from "../data/cars";
 import { BoxBuilder } from "./BoxBuilder";
 import { CarPicker } from "./CarPicker";
+import { comparePath } from "../data/compare-url";
 
 /** 앞 두 항목(성인사람·주차장)은 기준자라서 랜덤 대상에서 뺀다 */
 const RANDOM_POOL = CARS.slice(2);
@@ -43,15 +44,23 @@ function pickRandomOther(exclude: string): string {
   return pool[Math.floor(Math.random() * pool.length)].name;
 }
 
-export function ComparePage({ initial }: { initial?: Car | null }) {
+export function ComparePage({ initial, opponent }: { initial?: Car | null; opponent?: Car | null }) {
   const [names, setNames] = useState<[string | null, string | null]>([null, null]);
   const [left, right] = [byName(names[0]), byName(names[1])];
 
   // 목록에서 고른 차가 있으면 그 차를 왼쪽에 두고 상대만 랜덤으로,
   // 그냥 탭으로 들어왔으면 빈 화면 대신 랜덤 두 대를 보여준다
   useEffect(() => {
-    setNames(initial ? [initial.name, pickRandomOther(initial.name)] : pickRandomPair());
-  }, [initial]);
+    if (initial && opponent) setNames([initial.name, opponent.name]);
+    else setNames(initial ? [initial.name, pickRandomOther(initial.name)] : pickRandomPair());
+  }, [initial, opponent]);
+
+  // 고른 조합을 주소에 남긴다 — 공유·북마크되면 그대로 검색엔진에 잡힌다
+  useEffect(() => {
+    if (!left || !right) return;
+    const path = comparePath(left, right);
+    if (window.location.pathname !== path) window.history.replaceState(null, "", path);
+  }, [left, right]);
 
   const setAt = (index: 0 | 1, name: string) =>
     setNames((prev) => (index === 0 ? [name, prev[1]] : [prev[0], name]));

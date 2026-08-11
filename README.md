@@ -36,6 +36,7 @@ npm run sync:sales     # 판매량 최근 6개월 재수집 -> src/data/sales.ts
 npm run sync:sales -- --months=12
 npm run verify:cars    # cars.ts 치수를 다나와 제원과 전수 대조 (차이 있으면 exit 1)
 npm run sync:weights   # 공차중량 재수집 -> cars.ts (기계식 주차 판정용)
+npm run sync:segments  # 세그먼트 재수집 -> cars.ts (비교 조합 선정용)
 npm run check:claim    # m1k.app 등록·귀속 상태가 config와 맞는지 (어긋나면 exit 1)
 ```
 
@@ -58,6 +59,23 @@ SPA라 초기 HTML의 `<body>`가 비어 있습니다. 크롤러가 JS를 실행
   가로채서 `robots.txt` 요청에 HTML을 돌려줍니다(실제로 그랬습니다).
 
 내용은 전부 `cars.ts`에서 생성하므로 차를 추가하면 자동으로 따라갑니다.
+
+### 비교 페이지 120개
+
+`/compare/쏘렌토-vs-싼타페` 같은 주소를 조합마다 만듭니다. "쏘렌토 싼타페 크기"처럼
+조합으로 검색하는 사람을 위한 것입니다. 각 페이지는 고유한 title·description·canonical과
+두 차의 제원표를 갖습니다.
+
+아무 조합이나 만들면 색인만 낭비하므로 세 조건으로 거릅니다.
+
+- **같은 세그먼트** — 부피만 보면 "그랜저 vs 셀토스"가 나오는데 아무도 그렇게 고민하지 않습니다
+- **코어 차이 15% 이내** — 체급이 다르면 비교가 아닙니다
+- **둘 다 팔리는 차** — 판매 하위 조합은 검색되지 않습니다
+
+434쌍 중 판매량 상위 120쌍을 씁니다. 세그먼트는 `npm run sync:segments`로 다나와에서 받습니다.
+
+앱에서 두 차를 고르면 주소도 그 조합으로 바뀝니다(`history.replaceState`). 공유하거나
+북마크하면 그대로 색인 대상이 됩니다.
 
 ## 스택
 

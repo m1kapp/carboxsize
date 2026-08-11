@@ -5,16 +5,20 @@ import type { Car } from "./data/cars";
 import { CarListPage } from "./components/CarListPage";
 import { ComparePage } from "./components/ComparePage";
 import { KnowledgePage } from "./components/KnowledgePage";
+import { parseComparePath } from "./data/compare-url";
 import { SITE } from "./config";
 
 const ACCENT = SITE.accent;
 
 type Section = "list" | "compare" | "facts";
 
+// /compare/A-vs-B 로 들어오면 그 조합을 펼친 채 시작한다 (검색 유입 경로)
+const initialPair = typeof window !== "undefined" ? parseComparePath(window.location.pathname) : null;
+
 export default function App() {
-  const [section, setSection] = useState<Section>("list");
+  const [section, setSection] = useState<Section>(initialPair ? "compare" : "list");
   // 목록에서 고른 차 — 비교 화면 왼쪽 칸을 이 차로 채운 채 연다
-  const [picked, setPicked] = useState<Car | null>(null);
+  const [picked, setPicked] = useState<Car | null>(initialPair?.[0] ?? null);
 
   const openCompare = (car: Car) => {
     setPicked(car);
@@ -45,7 +49,13 @@ export default function App() {
           <div className="m-4">
             {section === "list" && <CarListPage onCompare={openCompare} />}
             {/* key를 바꿔 새로 고른 차로 다시 시작하게 한다 */}
-            {section === "compare" && <ComparePage key={picked?.name ?? "random"} initial={picked} />}
+            {section === "compare" && (
+              <ComparePage
+                key={picked?.name ?? "random"}
+                initial={picked}
+                opponent={initialPair?.[1] ?? null}
+              />
+            )}
             {section === "facts" && <KnowledgePage />}
           </div>
         </AppShellContent>
