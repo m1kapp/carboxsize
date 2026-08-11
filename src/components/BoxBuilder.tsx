@@ -3,7 +3,6 @@ import { Img } from "@m1kapp/kit";
 import { boxVolume, carImageUrl, danawaModelUrl, spaceVolume, type Car } from "../data/cars";
 import { LATEST_MONTH, salesOf } from "../data/sales";
 import { CHIP_TONE, chipsFor } from "../data/rank";
-import { checkParking } from "../data/parking";
 
 /** mm → px. 1/32 배율이면 가장 큰 차(5410mm)도 카드 한 칸(169px)에 들어간다. */
 const SCALE = 1 / 32;
@@ -35,7 +34,6 @@ export function BoxBuilder({
   const sourceUrl = danawaModelUrl(car.no);
   const units = salesOf(car.no, month);
   const chips = chipsFor(car, month);
-  const parking = checkParking(car);
 
   // 상자 6면 — 앞뒤 / 위아래 / 좌우
   const faces: CSSProperties[] = [
@@ -88,6 +86,7 @@ export function BoxBuilder({
             {chips.map((chip) => (
               <span
                 key={chip.label}
+                title={chip.title}
                 className={`rounded-full px-1.5 py-0.5 text-[9px] font-bold tracking-tight text-white shadow ${CHIP_TONE[chip.tone]}`}
               >
                 {chip.label}
@@ -105,15 +104,6 @@ export function BoxBuilder({
           ))}
         </div>
       </div>
-
-      {parking && parking.fits !== "중형" && (
-        <p
-          className="px-2 pt-1.5 text-[9px] leading-tight text-amber-700"
-          title={`기계식 주차장 제한 초과: ${parking.blockedBy.join(", ")}`}
-        >
-          기계식 {parking.fits === "대형" ? "대형만" : "불가"} · {parking.blockedBy.join(" · ")}
-        </p>
-      )}
 
       <dl className="grid grid-cols-3 gap-x-1 gap-y-0.5 px-2 pt-1.5 pb-2 text-[11px] tracking-tighter">
         <Spec label="전장" unit="(mm)" value={xSize} />
