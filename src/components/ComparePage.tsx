@@ -4,6 +4,7 @@ import { boxVolume, CARS, spaceVolume, type Car } from "../data/cars";
 import { BoxBuilder } from "./BoxBuilder";
 import { CarPicker } from "./CarPicker";
 import { comparePath } from "../data/compare-url";
+import { PairShortcuts } from "./PairShortcuts";
 
 /** 앞 두 항목(성인사람·주차장)은 기준자라서 랜덤 대상에서 뺀다 */
 const RANDOM_POOL = CARS.slice(2);
@@ -107,6 +108,8 @@ export function ComparePage({ initial, opponent }: { initial?: Car | null; oppon
           <Shuffle className="h-5 w-5" />
         </button>
       </div>
+
+      <PairShortcuts current={names} onPick={([a, b]) => setNames([a.name, b.name])} />
     </div>
   );
 }

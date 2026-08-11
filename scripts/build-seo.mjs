@@ -130,29 +130,17 @@ const toOgCar = (c) => ({ xSize: c.x, zSize: c.z, xInSize: c.xin, label: c.name.
 //   · 같은 세그먼트 — 부피만 보면 "그랜저 vs 셀토스"가 나오는데 아무도 그렇게 안 고민한다
 //   · 코어 차이 15% 이내 — 체급이 다르면 비교가 아니다
 //   · 둘 다 팔리는 차 — 안 팔리는 차 조합은 검색되지 않는다
-const salesSource = readFileSync(resolve(root, "src/data/sales.ts"), "utf8");
-const latestBlock = salesSource.match(/"(\d{4}-\d{2})": \{([\s\S]*?)\n  \},/);
-const units = {};
-for (const m of latestBlock[2].matchAll(/(\d+): (\d+),/g)) units[m[1]] = Number(m[2]);
-
 const core = (c) => m3(c.xin, c.y, c.z);
 const slug = (c) => c.name.split(" (")[0].replace(/\s+/g, "");
 
-const sellable = real
-  .filter((c) => c.no && units[c.no] && c.segment && c.segment !== "상용")
-  .sort((a, b) => units[b.no] - units[a.no]);
-
-const pairs = [];
-for (let i = 0; i < sellable.length; i++) {
-  for (let j = i + 1; j < sellable.length; j++) {
-    const [a, b] = [sellable[i], sellable[j]];
-    if (a.segment !== b.segment) continue;
-    if (Math.abs(core(a) - core(b)) / Math.max(core(a), core(b)) > 0.15) continue;
-    pairs.push({ a, b, score: Math.min(units[a.no], units[b.no]) });
-  }
-}
-pairs.sort((p, q) => q.score - p.score);
-const TOP = pairs.slice(0, 120);
+// 조합은 gen-pairs.mjs 가 고른다(build 첫 단계). 화면의 "자주 비교하는 조합"과 같은 목록을
+// 써야 한다 — 두 곳에서 따로 고르면 화면엔 있는데 색인엔 없는 조합이 생긴다.
+const pairsSource = readFileSync(resolve(root, "src/data/pairs.ts"), "utf8");
+const byName = new Map(real.map((c) => [c.name, c]));
+const TOP = [...pairsSource.matchAll(/\["([^"]+)", "([^"]+)"\]/g)]
+  .map((m) => ({ a: byName.get(m[1]), b: byName.get(m[2]) }))
+  .filter((p) => p.a && p.b);
+if (!TOP.length) throw new Error("pairs.ts 에서 조합을 못 읽었습니다 — gen-pairs 를 먼저 돌리세요");
 
 const label = (c) => c.name.split(" (")[0];
 const diffLine = (a, b, get, unit, verb) => {
@@ -237,4 +225,4 @@ writeFileSync(resolve(root, "dist/sitemap.xml"),
   urls.map((u) => `  <url>\n    <loc>${encodeURI(u)}</loc>\n    <lastmod>${today}</lastmod>\n  </url>`).join("\n") +
   `\n</urlset>\n`);
 
-console.log(`✓ 비교 페이지 ${TOP.length}개 + OG 이미지 ${TOP.length + 1}장 생성 (후보 ${pairs.length}쌍 중)`);
+console.log(`✓ 비교 페이지 ${TOP.length}개 + OG 이미지 ${TOP.length + 1}장`);
