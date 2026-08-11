@@ -5,9 +5,14 @@ import { Resvg } from "@resvg/resvg-js";
 import { boxFaces } from "./box3d.mjs";
 
 const here = dirname(fileURLToPath(import.meta.url));
-const fontFiles = ["Pretendard-Regular.otf", "Pretendard-Bold.otf"].map((f) =>
+// 파일명 대소문자를 실제 파일과 맞춘다. macOS 는 무시하지만 빌드 서버(Linux)는 구분해서,
+// 못 찾으면 loadSystemFonts:false 와 겹쳐 글자가 통째로 사라진다(실제로 그랬다).
+const fontFiles = ["Pretendard-regular.otf", "Pretendard-bold.otf"].map((f) =>
   resolve(here, "../fonts", f),
 );
+for (const file of fontFiles) {
+  if (!existsSync(file)) throw new Error(`폰트가 없습니다: ${file}`);
+}
 
 const W = 1200;
 const H = 630;
