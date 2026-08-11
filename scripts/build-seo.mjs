@@ -183,9 +183,14 @@ for (const { a, b } of TOP) {
     .replace(`href="${SITE}/"`, `href="${SITE}${path}"`)
     .replace(/<div id="root">[\s\S]*?<\/div>/, `<div id="root">${body}</div>`);
 
-  const dir = resolve(root, `dist${path}`);
-  mkdirSync(dir, { recursive: true });
-  writeFileSync(resolve(dir, "index.html"), page);
+  // 한글 경로와 퍼센트 인코딩 경로를 둘 다 만든다.
+  // 브라우저 주소창은 한글 그대로 보내지만 크롤러·공유 링크는 인코딩해서 보내는데,
+  // 인코딩된 쪽이 파일에 안 걸리면 SPA rewrite로 새서 전부 메인 페이지가 된다(실제로 그랬다).
+  for (const variant of new Set([path, `/compare/${encodeURIComponent(`${slug(a)}-vs-${slug(b)}`)}`])) {
+    const dir = resolve(root, `dist${variant}`);
+    mkdirSync(dir, { recursive: true });
+    writeFileSync(resolve(dir, "index.html"), page);
+  }
 }
 
 // sitemap 다시 — 메인 + 비교 페이지 전부
