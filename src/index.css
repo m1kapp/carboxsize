@@ -29,3 +29,12 @@ body {
   border: 0.5px solid rgba(0, 0, 0, 0.45);
   transition: transform 0.3s ease;
 }
+
+/* 가로 스크롤 카드에서 스크롤바가 보이면 지저분하다 */
+@utility scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
