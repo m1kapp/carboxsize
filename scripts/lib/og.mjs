@@ -47,9 +47,9 @@ const m3 = (a, b, c) => Math.round((a * b * c * 100) / 1e9) / 100;
  * 않아서 상자가 납작한 사각형이 된다. 여기서는 회전을 직접 계산해 육면체를 낸다.
  */
 function carCard(car, { x, y, width, scale }) {
-  const stageH = Math.round(width * 0.78);
-  const titleH = 46;
-  const height = titleH + stageH;
+  const stageH = Math.round(width * 0.82);
+  const titleH = 0;
+  const height = stageH;
 
   const box = boxFaces({ length: car.xSize, width: car.ySize, height: car.zSize }, scale);
   const cx = x + width / 2;
@@ -60,17 +60,19 @@ function carCard(car, { x, y, width, scale }) {
     ? `<image href="${car.photo}" x="${(cx - photoWidth / 2).toFixed(1)}" y="${(cy - box.height / 2).toFixed(1)}" width="${photoWidth.toFixed(1)}" height="${box.height.toFixed(1)}" preserveAspectRatio="xMidYMid meet"/>`
     : "";
 
+  // 뒤쪽 면은 흐리게, 앞쪽 면은 진하게. 여섯 면을 같은 굵기로 그리면 뒤 모서리가 차를
+  // 가로질러 X 자처럼 보인다. 가려지는 선을 죽여야 상자로 읽힌다.
   const faces = box.faces
-    .map(
-      (f) =>
-        `<polygon points="${f.points}" fill="rgba(0,0,0,0.055)" stroke="rgba(0,0,0,0.45)" stroke-width="1.5" stroke-linejoin="round"/>`,
-    )
+    .map((f, i) => {
+      const front = i >= box.faces.length / 2;
+      const stroke = front ? "rgba(0,0,0,0.5)" : "rgba(0,0,0,0.16)";
+      return `<polygon points="${f.points}" fill="rgba(0,0,0,0.04)" stroke="${stroke}" stroke-width="${front ? 1.6 : 1.2}" stroke-linejoin="round"/>`;
+    })
     .join("");
 
   return `<g>
 <clipPath id="stage-${car.clipId}"><rect x="${x}" y="${y + titleH}" width="${width}" height="${stageH}"/></clipPath>
 <rect x="${x}" y="${y}" width="${width}" height="${height}" rx="18" fill="#fff"/>
-<text x="${x + 14}" y="${y + 29}" font-size="21" font-weight="700" fill="#27272a">${esc(car.label)}</text>
 <rect x="${x}" y="${y + titleH}" width="${width}" height="${stageH}" fill="url(#stage)" clip-path="url(#stage-${car.clipId})"/>
 <g clip-path="url(#stage-${car.clipId})">
   ${photo}
