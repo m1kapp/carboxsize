@@ -108,7 +108,7 @@ console.log(`✓ SEO: 차량 ${real.length}종 + FAQ ${FAQ.length}개 주입, ro
 
 /** build-seo 는 x/y/z/xin 으로, og.mjs 는 전장·전고·축거 이름으로 부른다 — 여기서 한 번만 맞춘다 */
 const toOgCar = async (c) => ({
-  xSize: c.x, zSize: c.z, xInSize: c.xin, label: c.name.split(" (")[0], photo: await carPhoto(c.no),
+  xSize: c.x, ySize: c.y, zSize: c.z, label: c.name.split(" (")[0], photo: await carPhoto(c.no),
 });
 
 // 메인 OG — 대표 차 두 대로 "차를 상자로 잰다"를 보여준다
