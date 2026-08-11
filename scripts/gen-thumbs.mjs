@@ -52,7 +52,7 @@ for (const [a, b] of pairs) {
       ? { value: `+${diff.toFixed(2)}m³`, label: `${label(bigger)}가 코어 더 큼` }
       : { value: "≈", label: "코어가 거의 같음" },
     cars: await Promise.all([a, b].map(async (c) => ({
-      xSize: c.x, ySize: c.y, zSize: c.z, label: label(c), photo: await carPhoto(c.no),
+      xSize: c.x, ySize: c.y, zSize: c.z, xInSize: c.xin, label: c.name, photo: await carPhoto(c.no),
     }))),
     footer: "코어 = 축거 × 전폭 × 전고",
   });

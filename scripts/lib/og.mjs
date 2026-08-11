@@ -30,54 +30,93 @@ export async function carPhoto(no) {
 
 const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
+const m3 = (a, b, c) => Math.round((a * b * c * 100) / 1e9) / 100;
+
 /**
- * 차 한 대 — 사진 위에 3D 상자를 겹친다. 앱 카드와 같은 그림이다.
+ * 앱 카드 한 장을 그대로 그린다 — 회색 스테이지에 사진+3D 상자, 아래 제원 6칸.
  *
- * satori 를 안 쓰고 SVG 를 직접 쓰는 이유가 이것이다. satori 는 CSS transform 을 그리지
+ * 공유 카드가 앱과 다른 그림이면 눌러 들어왔을 때 "아까 그거"로 안 이어진다.
+ * 그래서 화면에 있는 구성을 그대로 옮긴다.
+ *
+ * satori 를 안 쓰고 SVG 를 직접 쓰는 이유도 이것이다. satori 는 CSS transform 을 그리지
  * 않아서 상자가 납작한 사각형이 된다. 여기서는 회전을 직접 계산해 육면체를 낸다.
  */
-function carGroup(car, scale, centerX, baseline) {
+function carCard(car, { x, y, width, scale }) {
+  const stageH = Math.round(width * 0.72);
+  const specH = 92;
+  const titleH = 44;
+  const height = titleH + stageH + specH;
+
   const box = boxFaces({ length: car.xSize, width: car.ySize, height: car.zSize }, scale);
-  const left = centerX - box.width / 2;
-  const top = baseline - box.height;
+  const cx = x + width / 2;
+  const cy = y + titleH + stageH / 2;
   const photoWidth = car.xSize * scale;
 
   const photo = car.photo
-    ? `<image href="${car.photo}" x="${(centerX - photoWidth / 2).toFixed(1)}" y="${top.toFixed(1)}" width="${photoWidth.toFixed(1)}" height="${box.height.toFixed(1)}" preserveAspectRatio="xMidYMid meet"/>`
+    ? `<image href="${car.photo}" x="${(cx - photoWidth / 2).toFixed(1)}" y="${(cy - box.height / 2).toFixed(1)}" width="${photoWidth.toFixed(1)}" height="${box.height.toFixed(1)}" preserveAspectRatio="xMidYMid meet"/>`
     : "";
 
   const faces = box.faces
     .map(
       (f) =>
-        `<polygon points="${f.points}" fill="rgba(255,255,255,0.07)" stroke="rgba(255,255,255,0.85)" stroke-width="2" stroke-linejoin="round"/>`,
+        `<polygon points="${f.points}" fill="rgba(0,0,0,0.055)" stroke="rgba(0,0,0,0.45)" stroke-width="1.5" stroke-linejoin="round"/>`,
     )
     .join("");
 
-  return `${photo}<g transform="translate(${left.toFixed(1)},${top.toFixed(1)})">${faces}</g>
-<text x="${centerX.toFixed(1)}" y="${(baseline + 36).toFixed(1)}" text-anchor="middle" font-size="26" font-weight="700" fill="#fff">${esc(car.label)}</text>`;
+  // 앱 카드와 같은 6칸 — 전장·전폭·전고 / 축거·코어·외형
+  const specs = [
+    ["전장", car.xSize, "#3f3f46"], ["전폭", car.ySize, "#3f3f46"], ["전고", car.zSize, "#3f3f46"],
+    ["축거", car.xInSize, "#3f3f46"],
+    ["코어", `${m3(car.xInSize, car.ySize, car.zSize)}m³`, "#2563eb"],
+    ["외형", `${m3(car.xSize, car.ySize, car.zSize)}m³`, "#9333ea"],
+  ];
+  const colW = (width - 24) / 3;
+  const specText = specs
+    .map(([label, value, color], i) => {
+      const sx = x + 12 + (i % 3) * colW;
+      const sy = y + titleH + stageH + 26 + Math.floor(i / 3) * 40;
+      return `<text x="${sx.toFixed(1)}" y="${sy.toFixed(1)}" font-size="15" fill="#a1a1aa">${label}</text>
+<text x="${sx.toFixed(1)}" y="${(sy + 21).toFixed(1)}" font-size="19" font-weight="700" fill="${color}">${esc(value)}</text>`;
+    })
+    .join("");
+
+  return `<g>
+<clipPath id="stage-${car.clipId}"><rect x="${x}" y="${y + titleH}" width="${width}" height="${stageH}"/></clipPath>
+<rect x="${x}" y="${y}" width="${width}" height="${height}" rx="18" fill="#fff"/>
+<text x="${x + 14}" y="${y + 29}" font-size="21" font-weight="700" fill="#27272a">${esc(car.label)}</text>
+<rect x="${x}" y="${y + titleH}" width="${width}" height="${stageH}" fill="url(#stage)" clip-path="url(#stage-${car.clipId})"/>
+<g clip-path="url(#stage-${car.clipId})">
+  ${photo}
+  <g transform="translate(${(cx - box.width / 2).toFixed(1)},${(cy - box.height / 2).toFixed(1)})">${faces}</g>
+</g>
+${specText}
+</g>`;
 }
 
 export async function renderOg({ title, subtitle, headline, cars, footer, width = W }) {
-  const stage = { top: 240, bottom: 500, width: 660 };
-  const totalLen = cars.reduce((sum, c) => sum + c.xSize, 0);
-  // 상자는 기울어져 있어 전고보다 높이 솟는다 — 전폭 성분을 더해 잘리지 않게 잡는다
-  const maxHeight = Math.max(...cars.map((c) => c.zSize + c.ySize * 0.6));
-  const scale = Math.min(stage.width / (totalLen * 1.3), (stage.bottom - stage.top) / maxHeight);
+  const cardW = cars.length > 1 ? 300 : 420;
+  const gap = 24;
+  const startX = 64;
+  const cardY = 196;
 
-  let cursor = 76;
+  // 두 카드가 같은 자를 써야 크기 비교가 성립한다 — 큰 차 기준으로 배율을 정한다
+  const maxLen = Math.max(...cars.map((c) => c.xSize));
+  const maxHeight = Math.max(...cars.map((c) => c.zSize + c.ySize * 0.6));
+  const scale = Math.min((cardW - 40) / maxLen, (cardW * 0.72 - 30) / maxHeight);
+
   const groups = cars
-    .map((car) => {
-      const span = car.xSize * scale * 1.25;
-      const svg = carGroup(car, scale, cursor + span / 2, stage.bottom);
-      cursor += span + 44;
-      return svg;
-    })
+    .map((car, i) =>
+      carCard({ ...car, clipId: i }, { x: startX + i * (cardW + gap), y: cardY, width: cardW, scale }),
+    )
     .join("");
 
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
 <defs>
   <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
     <stop offset="0" stop-color="#2563eb"/><stop offset="1" stop-color="#7c3aed"/>
+  </linearGradient>
+  <linearGradient id="stage" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#e4e4e7"/><stop offset="1" stop-color="#71717a"/>
   </linearGradient>
 </defs>
 <rect width="${W}" height="${H}" fill="url(#bg)"/>
