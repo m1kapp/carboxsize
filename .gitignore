@@ -7,3 +7,4 @@ dist
 .m1k.json
 .env*
 .fixearly-history.json
+public/og

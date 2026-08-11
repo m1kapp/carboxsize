@@ -14,6 +14,9 @@ const BLUE = "#2563eb";
 const PURPLE = "#7c3aed";
 const STAGE = { width: 1072, height: 250 };
 
+/** 목록 썸네일 — OG 원본(1200)의 절반. 16장 깔아도 가볍게 */
+export const THUMB_WIDTH = 600;
+
 const el = (type, style, ...children) => ({
   type,
   props: { style: { display: "flex", ...style }, children: children.length > 1 ? children : children[0] },
@@ -48,7 +51,7 @@ function carShape(car, scale, { fill, border }) {
   );
 }
 
-export async function renderOg({ title, subtitle, headline, cars, footer }) {
+export async function renderOg({ title, subtitle, headline, cars, footer, width = 1200 }) {
   // 두 차를 같은 자로 그린다 — 이미지 안에서 크기 차이가 그대로 보이게
   const maxLen = Math.max(...cars.map((c) => c.xSize));
   const maxHeight = Math.max(...cars.map((c) => c.zSize));
@@ -92,6 +95,7 @@ export async function renderOg({ title, subtitle, headline, cars, footer }) {
     ),
   );
 
+  // 항상 1200×630으로 그린 뒤 원하는 폭으로 굽는다 — 레이아웃 계산을 한 벌만 유지한다
   const svg = await satori(tree, { width: 1200, height: 630, fonts });
-  return new Resvg(svg, { fitTo: { mode: "width", value: 1200 } }).render().asPng();
+  return new Resvg(svg, { fitTo: { mode: "width", value: width } }).render().asPng();
 }
