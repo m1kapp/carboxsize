@@ -22,7 +22,7 @@ const mm = (diff: number) => `${diff}mm`;
 const m3 = (diff: number) => `${diff.toFixed(2)}m³`;
 
 const METRICS: Metric[] = [
-  { label: "공간", verb: "더 크다", get: spaceVolume, format: m3, className: "text-blue-600" },
+  { label: "코어", verb: "더 크다", get: spaceVolume, format: m3, className: "text-blue-600" },
   { label: "외형", verb: "더 크다", get: boxVolume, format: m3, className: "text-purple-600" },
   { label: "축거", verb: "더 길다", get: (c) => c.xInSize, format: mm },
   { label: "전장", verb: "더 길다", get: (c) => c.xSize, format: mm },

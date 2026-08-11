@@ -11,7 +11,7 @@ type Props = {
   placeholder?: string;
 };
 
-/** 판매량 있는 차가 위로, 그 안에서 많이 팔린 순. 판매 집계에 없는 차는 공간 큰 순. */
+/** 판매량 있는 차가 위로, 그 안에서 많이 팔린 순. 판매 집계에 없는 차는 코어 큰 순. */
 const byPopularity = (month: string) => (a: Car, b: Car) => {
   const [sa, sb] = [salesOf(a.no, month) ?? -1, salesOf(b.no, month) ?? -1];
   return sb - sa || spaceVolume(b) - spaceVolume(a);

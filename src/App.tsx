@@ -34,7 +34,7 @@ export default function App() {
               Car Box Size
             </div>
             <div className="text-xs tracking-tighter text-gray-500">
-              <span className="text-blue-600">공간 = 축거</span> x 전폭 x 전고 /{" "}
+              <span className="text-blue-600">코어 = 축거</span> x 전폭 x 전고 /{" "}
               <span className="text-purple-600">외형 = 전장</span> x 전폭 x 전고
             </div>
           </div>

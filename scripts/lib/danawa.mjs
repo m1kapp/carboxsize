@@ -38,6 +38,8 @@ async function get(params, { retries = 2 } = {}) {
 }
 
 const SPEC_FIELDS = { 전장: "xSize", 전폭: "ySize", 전고: "zSize", 축거: "xInSize" };
+/** 기계식 주차 판정에 쓰는 무게. 단위가 kg이라 mm 파서와 따로 읽는다. */
+const WEIGHT_LABEL = "공차중량";
 
 /**
  * 모델 제원. 트림마다 값이 갈리는 항목(휠 크기에 따른 전고 등)은 최빈값을 쓴다.
@@ -60,8 +62,20 @@ export async function fetchSpec(no) {
     spec[key] = mode(values);
   }
 
+  // 공차중량은 트림마다 갈린다(구동방식·배터리). 기계식 주차는 못 들어가면 그만이라
+  // 대표값이 아니라 가장 무거운 트림을 쓴다.
+  let weight = null;
+  const weightRow = labels.find(([, , label]) => label === WEIGHT_LABEL);
+  if (weightRow) {
+    const row = html.match(new RegExp(`rightTr' id='compareRight_${weightRow[1]}'>([\\s\\S]*?)<\\/tr>`));
+    if (row) {
+      const values = [...row[1].matchAll(/>([\d,]+)\s*kg</g)].map((m) => Number(m[1].replace(/,/g, "")));
+      if (values.length) weight = Math.max(...values);
+    }
+  }
+
   return Object.keys(SPEC_FIELDS).every((label) => spec[SPEC_FIELDS[label]] != null)
-    ? { ...spec, all }
+    ? { ...spec, weight, all }
     : null;
 }
 

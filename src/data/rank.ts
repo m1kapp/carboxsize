@@ -30,7 +30,7 @@ function edgeChip(values: number[], value: number, name: string): Chip | null {
 
 /**
  * 카드에 붙일 칩. 카드가 좁아서 최대 2개 — 판매 순위를 먼저 두고,
- * 그 다음 공간, 공간이 평범하면 외형으로 자리를 채운다.
+ * 그 다음 코어, 코어가 평범하면 외형으로 자리를 채운다.
  */
 export function chipsFor(car: Car, month: string = LATEST_MONTH): Chip[] {
   if (isRuler(car)) return [];
@@ -44,7 +44,7 @@ export function chipsFor(car: Car, month: string = LATEST_MONTH): Chip[] {
     if (rank <= 10) chips.push({ label: `판매 ${rank}위`, tone: "sales" });
   }
 
-  const chip = edgeChip(SPACE, spaceVolume(car), "공간") ?? edgeChip(BOX, boxVolume(car), "외형");
+  const chip = edgeChip(SPACE, spaceVolume(car), "코어") ?? edgeChip(BOX, boxVolume(car), "외형");
   if (chip) chips.push(chip);
 
   return chips.slice(0, 2);

@@ -3,6 +3,7 @@ import { Search, X } from "lucide-react";
 import { CARS, type Car } from "../data/cars";
 import { danawaRecordUrl, formatMonth, importedPending, LATEST_MONTH, SALES_MONTHS } from "../data/sales";
 import { matchesQuery } from "../data/search";
+import { checkParking } from "../data/parking";
 import { SORT_KEYS, SORT_LABELS, sortCars, type SortDir, type SortKey } from "../data/sort";
 import { BoxBuilder } from "./BoxBuilder";
 
@@ -14,11 +15,15 @@ export function CarListPage({ onCompare }: { onCompare: (car: Car) => void }) {
   const [dir, setDir] = useState<SortDir>(defaultDir("sales"));
   const [query, setQuery] = useState("");
   const [month, setMonth] = useState(LATEST_MONTH);
+  // 도심에서 차 고를 때 실제로 걸리는 벽이라 목록에서 바로 걸러볼 수 있게 한다
+  const [mechanicalOnly, setMechanicalOnly] = useState(false);
 
   const cars = useMemo(() => {
-    const found = CARS.filter((c) => matchesQuery(query, c.name, c.brand));
+    const found = CARS.filter((c) => matchesQuery(query, c.name, c.brand)).filter(
+      (c) => !mechanicalOnly || checkParking(c)?.fits === "중형",
+    );
     return sortCars(found, sortKey, dir, month);
-  }, [sortKey, dir, query, month]);
+  }, [sortKey, dir, query, month, mechanicalOnly]);
 
   // 같은 기준을 다시 누르면 방향만 뒤집고, 다른 기준으로 옮기면 그 기준의 기본 방향으로
   const pick = (key: SortKey) => {
@@ -45,6 +50,16 @@ export function CarListPage({ onCompare }: { onCompare: (car: Car) => void }) {
           </button>
         )}
       </div>
+
+      <button
+        onClick={() => setMechanicalOnly((v) => !v)}
+        className={`-mt-2 self-start rounded-full px-3 py-1 text-[11px] font-medium transition-all ${
+          mechanicalOnly ? "bg-gray-800 text-white" : "bg-white text-gray-500 shadow-sm hover:bg-gray-50"
+        }`}
+        title="주차장법 시행규칙 제16조의2 · 중형 기계식(5.2m · 2.0m · 1.85m · 2,350kg)"
+      >
+        기계식 주차 되는 차만
+      </button>
 
       <div className="grid w-full grid-cols-7 gap-1">
         {SORT_KEYS.map((key) => {

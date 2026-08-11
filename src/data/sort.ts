@@ -6,7 +6,7 @@ export type SortDir = "asc" | "desc";
 
 export const SORT_LABELS: Record<SortKey, string> = {
   sales: "판매",
-  spaceVolume: "공간",
+  spaceVolume: "코어",
   boxVolume: "외형",
   xInSize: "축거",
   xSize: "전장",
