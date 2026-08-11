@@ -6,7 +6,7 @@
 - **외형** = 전장 × 전폭 × 전고 (m³) — 주차장에서 차지하는 부피
 
 카드마다 실제 치수 비율로 만든 3D 상자를 차 사진 위에 겹쳐 보여줍니다.
-기준자로 `성인사람`(500×500×1700)과 `주차장`(5000×2300×300)이 목록에 함께 들어 있습니다.
+기준자로 `성인사람`(500×500×1700)과 `주차장`(5000×2500×300)이 목록에 함께 들어 있습니다.
 
 ## 화면
 
@@ -34,6 +34,7 @@ npm run build
 npm run sync:sales     # 판매량 최근 6개월 재수집 -> src/data/sales.ts
 npm run sync:sales -- --months=12
 npm run verify:cars    # cars.ts 치수를 다나와 제원과 전수 대조 (차이 있으면 exit 1)
+npm run sync:weights   # 공차중량 재수집 -> cars.ts (기계식 주차 판정용)
 npm run check:claim    # m1k.app 등록·귀속 상태가 config와 맞는지 (어긋나면 exit 1)
 ```
 
