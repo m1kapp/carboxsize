@@ -13,8 +13,10 @@ const rad = (deg) => (deg * Math.PI) / 180;
 export const ROTATION = { x: 8, y: 128 };
 
 function project([x, y, z], { x: ax, y: ay } = ROTATION) {
-  const [sy, cy] = [Math.sin(rad(ay)), Math.cos(rad(ay))];
-  const [sx, cx] = [Math.sin(rad(ax)), Math.cos(rad(ax))];
+  // CSS 는 y 축이 아래를 향하는 좌표계다. 여기서는 y 를 위로 두고 계산한 뒤 뒤집으므로
+  // 회전 부호를 반대로 넣어야 화면과 같은 방향이 된다(안 그러면 상자가 좌우로 뒤집힌다).
+  const [sy, cy] = [Math.sin(rad(-ay)), Math.cos(rad(-ay))];
+  const [sx, cx] = [Math.sin(rad(-ax)), Math.cos(rad(-ax))];
 
   const x1 = x * cy + z * sy;
   const z1 = -x * sy + z * cy;

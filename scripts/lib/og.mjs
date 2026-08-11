@@ -47,7 +47,7 @@ const m3 = (a, b, c) => Math.round((a * b * c * 100) / 1e9) / 100;
  * 않아서 상자가 납작한 사각형이 된다. 여기서는 회전을 직접 계산해 육면체를 낸다.
  */
 function carCard(car, { x, y, width, scale }) {
-  const stageH = Math.round(width * 0.82);
+  const stageH = Math.round(width * 0.66);
   const titleH = 0;
   const height = stageH;
 
@@ -82,15 +82,15 @@ function carCard(car, { x, y, width, scale }) {
 }
 
 export async function renderOg({ title, subtitle, headline, cars, footer, width = W }) {
-  const cardW = cars.length > 1 ? 340 : 460;
-  const gap = 28;
+  const cardW = cars.length > 1 ? 404 : 520;
+  const gap = 68; // 사이에 VS 배지가 들어간다
   const startX = 64;
-  const cardY = 196;
+  const cardY = 214;
 
   // 두 카드가 같은 자를 써야 크기 비교가 성립한다 — 큰 차 기준으로 배율을 정한다
   const maxLen = Math.max(...cars.map((c) => c.xSize));
   const maxHeight = Math.max(...cars.map((c) => c.zSize + c.ySize * 0.6));
-  const scale = Math.min((cardW - 36) / maxLen, (cardW * 0.78 - 34) / maxHeight);
+  const scale = Math.min((cardW - 48) / maxLen, (cardW * 0.66 - 40) / maxHeight);
 
   const groups = cars
     .map((car, i) =>
@@ -111,6 +111,16 @@ export async function renderOg({ title, subtitle, headline, cars, footer, width 
 <text x="64" y="118" font-size="${cars.length > 1 ? 62 : 74}" font-weight="700" fill="#fff" letter-spacing="-2">${esc(title)}</text>
 <text x="64" y="164" font-size="26" fill="rgba(255,255,255,0.82)">${esc(subtitle)}</text>
 ${groups}
+${
+  cars.length > 1
+    ? (() => {
+        const cx = startX + cardW + gap / 2;
+        const cy = cardY + Math.round(cardW * 0.66) / 2;
+        return `<circle cx="${cx}" cy="${cy}" r="30" fill="#fff"/>
+<text x="${cx}" y="${cy + 9}" text-anchor="middle" font-size="24" font-weight="700" fill="#3f3f46">VS</text>`;
+      })()
+    : ""
+}
 ${
   headline
     ? `<text x="${W - 64}" y="${H - 150}" text-anchor="end" font-size="54" font-weight="700" fill="#fff" letter-spacing="-1">${esc(headline.value)}</text>
