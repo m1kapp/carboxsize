@@ -47,10 +47,9 @@ const m3 = (a, b, c) => Math.round((a * b * c * 100) / 1e9) / 100;
  * 않아서 상자가 납작한 사각형이 된다. 여기서는 회전을 직접 계산해 육면체를 낸다.
  */
 function carCard(car, { x, y, width, scale }) {
-  const stageH = Math.round(width * 0.72);
-  const specH = 92;
-  const titleH = 44;
-  const height = titleH + stageH + specH;
+  const stageH = Math.round(width * 0.78);
+  const titleH = 46;
+  const height = titleH + stageH;
 
   const box = boxFaces({ length: car.xSize, width: car.ySize, height: car.zSize }, scale);
   const cx = x + width / 2;
@@ -68,23 +67,6 @@ function carCard(car, { x, y, width, scale }) {
     )
     .join("");
 
-  // 앱 카드와 같은 6칸 — 전장·전폭·전고 / 축거·코어·외형
-  const specs = [
-    ["전장", car.xSize, "#3f3f46"], ["전폭", car.ySize, "#3f3f46"], ["전고", car.zSize, "#3f3f46"],
-    ["축거", car.xInSize, "#3f3f46"],
-    ["코어", `${m3(car.xInSize, car.ySize, car.zSize)}m³`, "#2563eb"],
-    ["외형", `${m3(car.xSize, car.ySize, car.zSize)}m³`, "#9333ea"],
-  ];
-  const colW = (width - 24) / 3;
-  const specText = specs
-    .map(([label, value, color], i) => {
-      const sx = x + 12 + (i % 3) * colW;
-      const sy = y + titleH + stageH + 26 + Math.floor(i / 3) * 40;
-      return `<text x="${sx.toFixed(1)}" y="${sy.toFixed(1)}" font-size="15" fill="#a1a1aa">${label}</text>
-<text x="${sx.toFixed(1)}" y="${(sy + 21).toFixed(1)}" font-size="19" font-weight="700" fill="${color}">${esc(value)}</text>`;
-    })
-    .join("");
-
   return `<g>
 <clipPath id="stage-${car.clipId}"><rect x="${x}" y="${y + titleH}" width="${width}" height="${stageH}"/></clipPath>
 <rect x="${x}" y="${y}" width="${width}" height="${height}" rx="18" fill="#fff"/>
@@ -94,20 +76,19 @@ function carCard(car, { x, y, width, scale }) {
   ${photo}
   <g transform="translate(${(cx - box.width / 2).toFixed(1)},${(cy - box.height / 2).toFixed(1)})">${faces}</g>
 </g>
-${specText}
 </g>`;
 }
 
 export async function renderOg({ title, subtitle, headline, cars, footer, width = W }) {
-  const cardW = cars.length > 1 ? 300 : 420;
-  const gap = 24;
+  const cardW = cars.length > 1 ? 340 : 460;
+  const gap = 28;
   const startX = 64;
   const cardY = 196;
 
   // 두 카드가 같은 자를 써야 크기 비교가 성립한다 — 큰 차 기준으로 배율을 정한다
   const maxLen = Math.max(...cars.map((c) => c.xSize));
   const maxHeight = Math.max(...cars.map((c) => c.zSize + c.ySize * 0.6));
-  const scale = Math.min((cardW - 40) / maxLen, (cardW * 0.72 - 30) / maxHeight);
+  const scale = Math.min((cardW - 36) / maxLen, (cardW * 0.78 - 34) / maxHeight);
 
   const groups = cars
     .map((car, i) =>
