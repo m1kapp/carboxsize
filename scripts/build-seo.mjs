@@ -93,7 +93,7 @@ let html = readFileSync(path, "utf8");
 
 if (!html.includes('<div id="root">')) throw new Error("dist/index.html에서 #root를 못 찾았습니다");
 html = html.replace('<div id="root"></div>', `<div id="root">${content}</div>`);
-html = html.replace("</head>", `  <link rel="canonical" href="${SITE}/" />\n    <script type="application/ld+json">${faqLd}</script>\n  </head>`);
+html = html.replace("</head>", `  <link rel="canonical" href="${SITE}/" />\n    <script id="faq-schema" type="application/ld+json">${faqLd}</script>\n  </head>`);
 writeFileSync(path, html);
 
 // robots.txt / sitemap.xml — 정적 파일이 SPA rewrite보다 우선한다
@@ -117,7 +117,7 @@ const toOgCar = async (c) => ({
   // 크기 대비가 큰 두 대를 세운다 — 나란히 놓았을 때 한눈에 차이가 보여야 한다
   const [big, small] = [pick("스타리아") ?? real[0], pick("모닝") ?? real[1]];
   const png = await renderOg({
-    title: "Car Box Size",
+    title: "차를 상자로 재면?",
     subtitle: `국산·수입차 ${real.length}종을 상자로 바꿔서 크기 비교`,
     headline: { value: `${real.length}종`, label: "매달 갱신" },
     cars: await Promise.all([big, small].map(toOgCar)),
@@ -184,20 +184,46 @@ for (const { a, b } of TOP) {
 
   // 조합 전용 OG — 공유될 때 그 두 대가 그대로 보인다
   const ogName = `${slug(a)}-vs-${slug(b)}.png`;
+  const ogAlt = `${label(a)}와 ${label(b)}를 같은 축척의 상자로 나란히 비교한 이미지`;
   const diff = Math.abs(core(a) - core(b));
   const bigger = core(a) >= core(b) ? a : b;
   const png = await renderOg({
-    title: `${label(a)} vs ${label(b)}`,
-    subtitle: `${a.segment} · 전장 ${a.x} vs ${b.x}mm · 축거 ${a.xin} vs ${b.xin}mm`,
+    title: `${label(a)} vs ${label(b)} 크기 비교`,
+    subtitle: `비슷해 보이는 ${a.segment ?? "차"} 둘, 실제 제원은 얼마나 다를까?`,
     headline: diff >= 0.01
-      ? { value: `+${diff.toFixed(2)}m³`, label: `${label(bigger)}가 코어 더 큼` }
-      : { value: "≈", label: "코어가 거의 같음" },
+      ? {
+          value: `${label(bigger)}가 ${diff.toFixed(2)}m³ 더 큼`,
+          label: "전장·전폭·전고·축거 자세히 →",
+          cta: true,
+        }
+      : {
+          value: "코어 크기가 거의 같음",
+          label: "전장·전폭·전고·축거 자세히 →",
+          cta: true,
+        },
     cars: await Promise.all([a, b].map(toOgCar)),
+    highlight: diff >= 0.01 ? label(bigger) : null,
     footer: "코어 = 축거 × 전폭 × 전고",
   });
   mkdirSync(resolve(root, "dist/og-share"), { recursive: true });
   writeFileSync(resolve(root, `dist/og-share/${ogName}`), png);
   const ogUrl = `${SITE}/og-share/${encodeURIComponent(ogName)}`;
+  const canonicalUrl = encodeURI(`${SITE}${path}`);
+  const pageLd = JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    name: title,
+    description: desc,
+    url: canonicalUrl,
+    inLanguage: "ko-KR",
+    primaryImageOfPage: {
+      "@type": "ImageObject",
+      url: ogUrl,
+      width: 1200,
+      height: 630,
+      caption: ogAlt,
+    },
+  });
 
   let page = html
     .replace(/<title>[^<]*<\/title>/, `<title>${esc(title)}</title>`)
@@ -206,9 +232,16 @@ for (const { a, b } of TOP) {
     .replace(/(<meta property="og:description" content=")[^"]*(")/, `$1${esc(desc)}$2`)
     .replace(/(<meta name="twitter:title" content=")[^"]*(")/, `$1${esc(title)}$2`)
     .replace(/(<meta name="twitter:description" content=")[^"]*(")/, `$1${esc(desc)}$2`)
-    .replace(`href="${SITE}/"`, `href="${SITE}${path}"`)
-    .replace(new RegExp(`${SITE}/og-image\\.png`, "g"), ogUrl)
-    .replace(/<div id="root">[\s\S]*?<\/div>/, `<div id="root">${body}</div>`);
+    .replace(/(<meta property="og:url" content=")[^"]*(")/, `$1${canonicalUrl}$2`)
+    .replace(/(<meta property="og:image:alt" content=")[^"]*(")/, `$1${esc(ogAlt)}$2`)
+    .replace(/(<meta name="twitter:image:alt" content=")[^"]*(")/, `$1${esc(ogAlt)}$2`)
+    .replace(`href="${SITE}/"`, `href="${canonicalUrl}"`)
+    .replace(/(<meta property="og:image" content=")[^"]*(")/, `$1${ogUrl}$2`)
+    .replace(/(<meta name="twitter:image" content=")[^"]*(")/, `$1${ogUrl}$2`)
+    .replace(/<div id="root">[\s\S]*?<\/div>/, `<div id="root">${body}</div>`)
+    // 비교 본문에 없는 홈페이지 FAQ 구조화 데이터는 함께 내보내면 안 된다.
+    .replace(/\s*<script id="faq-schema"[^>]*>[\s\S]*?<\/script>/, "")
+    .replace("</head>", `  <script type="application/ld+json">${pageLd}</script>\n  </head>`);
 
   // 한글 경로와 퍼센트 인코딩 경로를 둘 다 만든다.
   // 브라우저 주소창은 한글 그대로 보내지만 크롤러·공유 링크는 인코딩해서 보내는데,
@@ -221,10 +254,22 @@ for (const { a, b } of TOP) {
 }
 
 // sitemap 다시 — 메인 + 비교 페이지 전부
-const urls = [`${SITE}/`, ...TOP.map(({ a, b }) => `${SITE}/compare/${slug(a)}-vs-${slug(b)}`)];
+const sitemapEntries = [
+  {
+    url: `${SITE}/`,
+    image: `${SITE}/og-image.png`,
+  },
+  ...TOP.map(({ a, b }) => ({
+    url: `${SITE}/compare/${slug(a)}-vs-${slug(b)}`,
+    image: `${SITE}/og-share/${encodeURIComponent(`${slug(a)}-vs-${slug(b)}.png`)}`,
+  })),
+];
 writeFileSync(resolve(root, "dist/sitemap.xml"),
-  `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n` +
-  urls.map((u) => `  <url>\n    <loc>${encodeURI(u)}</loc>\n    <lastmod>${today}</lastmod>\n  </url>`).join("\n") +
+  `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">\n` +
+  sitemapEntries.map(({ url, image }) =>
+    `  <url>\n    <loc>${encodeURI(url)}</loc>\n    <lastmod>${today}</lastmod>\n` +
+    `    <image:image>\n      <image:loc>${image}</image:loc>\n    </image:image>\n  </url>`,
+  ).join("\n") +
   `\n</urlset>\n`);
 
 console.log(`✓ 비교 페이지 ${TOP.length}개 + OG 이미지 ${TOP.length + 1}장`);

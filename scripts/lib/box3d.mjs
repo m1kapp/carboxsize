@@ -12,11 +12,11 @@ const rad = (deg) => (deg * Math.PI) / 180;
 
 export const ROTATION = { x: 8, y: 128 };
 
-function project([x, y, z], { x: ax, y: ay } = ROTATION) {
-  // CSS 는 y 축이 아래를 향하는 좌표계다. 여기서는 y 를 위로 두고 계산한 뒤 뒤집으므로
-  // 회전 부호를 반대로 넣어야 화면과 같은 방향이 된다(안 그러면 상자가 좌우로 뒤집힌다).
+export function projectPoint([x, y, z], { x: ax, y: ay } = ROTATION) {
+  // Y 회전은 좌우 방향을 맞추기 위해 반대로 넣는다. X 회전까지 반대로 넣으면 전장선이
+  // 앱 카드와 반대 방향으로 기운다. 마지막에 SVG y축만 뒤집는 것으로 CSS와 같아진다.
   const [sy, cy] = [Math.sin(rad(-ay)), Math.cos(rad(-ay))];
-  const [sx, cx] = [Math.sin(rad(-ax)), Math.cos(rad(-ax))];
+  const [sx, cx] = [Math.sin(rad(ax)), Math.cos(rad(ax))];
 
   const x1 = x * cy + z * sy;
   const z1 = -x * sy + z * cy;
@@ -36,7 +36,7 @@ export function boxFaces(size, scale) {
   const [w, h, d] = [size.length * scale, size.height * scale, size.width * scale];
   const [hx, hy, hz] = [w / 2, h / 2, d / 2];
 
-  const corner = (sx, sy, sz) => project([sx * hx, sy * hy, sz * hz]);
+  const corner = (sx, sy, sz) => projectPoint([sx * hx, sy * hy, sz * hz]);
   const v = {
     // 앞(z+) 뒤(z-) × 위아래 × 좌우
     ftl: corner(-1, 1, 1), ftr: corner(1, 1, 1), fbr: corner(1, -1, 1), fbl: corner(-1, -1, 1),

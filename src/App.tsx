@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { AppShell, AppShellContent, AppShellHeader, Tab, TabBar, Watermark } from "@m1kapp/kit";
+import { AppShell, AppShellContent, AppShellHeader, Tab, TabBar, Watermark, watermarkTint } from "@m1kapp/kit";
 import { BookOpen, GitCompare, LayoutGrid } from "lucide-react";
 import type { Car } from "./data/cars";
 import { CarListPage } from "./components/CarListPage";
@@ -27,7 +27,7 @@ export default function App() {
 
   return (
     <Watermark
-      color={ACCENT}
+      color={watermarkTint(ACCENT)}
       text="carboxsize"
       trackSlug={SITE.tracker.slug}
       claimed={SITE.tracker.claimed}

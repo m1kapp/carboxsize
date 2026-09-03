@@ -5,16 +5,17 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "node scripts/gen-pairs.mjs && node scripts/gen-thumbs.mjs && tsc -b && vite build && node scripts/build-seo.mjs",
+    "build": "node scripts/gen-pairs.mjs && node scripts/gen-thumbs.mjs && tsc -b && vite build && node scripts/build-seo.mjs && node scripts/verify-seo.mjs",
     "preview": "vite preview",
     "sync:sales": "node scripts/sync-sales.mjs",
     "verify:cars": "node scripts/verify-cars.mjs",
+    "verify:seo": "node scripts/verify-seo.mjs",
     "check:claim": "node scripts/check-claim.mjs",
     "sync:weights": "node scripts/sync-weights.mjs",
     "sync:segments": "node scripts/sync-segments.mjs"
   },
   "dependencies": {
-    "@m1kapp/kit": "^0.0.40",
+    "@m1kapp/kit": "^0.0.43",
     "lucide-react": "^1.25.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0"

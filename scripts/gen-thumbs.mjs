@@ -46,14 +46,23 @@ for (const [a, b] of pairs) {
   const bigger = core(a) >= core(b) ? a : b;
   const png = await renderOg({
     width: THUMB_WIDTH,
-    title: `${label(a)} vs ${label(b)}`,
-    subtitle: `${a.segment ?? ""} · 전장 ${a.x} vs ${b.x}mm`,
+    title: `${label(a)} vs ${label(b)} 크기 비교`,
+    subtitle: `비슷해 보이는 ${a.segment ?? "차"} 둘, 실제 제원은 얼마나 다를까?`,
     headline: diff >= 0.01
-      ? { value: `+${diff.toFixed(2)}m³`, label: `${label(bigger)}가 코어 더 큼` }
-      : { value: "≈", label: "코어가 거의 같음" },
+      ? {
+          value: `${label(bigger)}가 ${diff.toFixed(2)}m³ 더 큼`,
+          label: "전장·전폭·전고·축거 자세히 →",
+          cta: true,
+        }
+      : {
+          value: "코어 크기가 거의 같음",
+          label: "전장·전폭·전고·축거 자세히 →",
+          cta: true,
+        },
     cars: await Promise.all([a, b].map(async (c) => ({
       xSize: c.x, ySize: c.y, zSize: c.z, xInSize: c.xin, label: c.name, photo: await carPhoto(c.no),
     }))),
+    highlight: diff >= 0.01 ? label(bigger) : null,
     footer: "코어 = 축거 × 전폭 × 전고",
   });
   writeFileSync(resolve(dir, `${slug(a)}-vs-${slug(b)}.png`), png);
