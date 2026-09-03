@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import { Search, X } from "lucide-react";
 import { CARS, type Car } from "../data/cars";
 import { danawaRecordUrl, formatMonth, importedPending, LATEST_MONTH, SALES_MONTHS } from "../data/sales";
-import { matchesQuery } from "@m1kapp/kit";
+import { matchesQuery } from "../data/search";
 import { checkParking } from "../data/parking";
 import { SORT_KEYS, SORT_LABELS, sortCars, type SortDir, type SortKey } from "../data/sort";
 import { BoxBuilder } from "./BoxBuilder";
