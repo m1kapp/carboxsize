@@ -15,7 +15,7 @@
     "sync:segments": "node scripts/sync-segments.mjs"
   },
   "dependencies": {
-    "@m1kapp/kit": "^0.0.45",
+    "@m1kapp/kit": "^0.0.46",
     "lucide-react": "^1.25.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0"
