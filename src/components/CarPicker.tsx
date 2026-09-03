@@ -3,7 +3,7 @@ import { Dialog, Img } from "@m1kapp/kit";
 import { ChevronDown, Search } from "lucide-react";
 import { CARS, carImageUrl, spaceVolume, type Car } from "../data/cars";
 import { danawaRecordUrl, formatMonth, importedPending, LATEST_MONTH, salesOf, SALES_MONTHS } from "../data/sales";
-import { matchesQuery } from "../data/search";
+import { matchesQuery } from "@m1kapp/kit";
 
 type Props = {
   value: Car | null;
